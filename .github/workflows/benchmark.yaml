@@ -62,8 +62,9 @@ jobs:
     - name: Generate comment
       id: generate
       run: |
-        COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
-        SHORT_SHA=$(git rev-parse --short HEAD)
+        LAST_COMMIT_SHA=${{ github.event.pull_request.head.sha }}
+        COMMIT_MESSAGE=$(git log -1 --pretty=format:%s $LAST_COMMIT_SHA)
+        SHORT_SHA=$(echo $LAST_COMMIT_SHA | cut -c 1-7)
         COMMENT="Benchmark of commit \`${COMMIT_MESSAGE} (#${SHORT_SHA})\`\n"
         COMMENT+="| Opponent | Wins | Draws | Losses |\n"
         COMMENT+="| --- | --- | --- | --- |\n"
