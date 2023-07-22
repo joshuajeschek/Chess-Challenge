@@ -37,7 +37,7 @@ jobs:
       run: |
         cd Chess-Challenge
         START_LINE=$(( (${{ matrix.chunk }} - 1) * 50 + 1 ))
-        END_LINE=$(( $START_LINE + 1 ))
+        END_LINE=$(( $START_LINE + 49 ))
         sed -n "${START_LINE},${END_LINE}p" resources/Fens.txt > temp.txt
         head -c -1 temp.txt > temp_no_newline.txt
         mv temp_no_newline.txt resources/Fens.txt
