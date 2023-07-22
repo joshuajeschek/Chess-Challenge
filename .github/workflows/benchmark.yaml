@@ -39,7 +39,8 @@ jobs:
         START_LINE=$(( (${{ matrix.chunk }} - 1) * 50 + 1 ))
         END_LINE=$(( $START_LINE + 1 ))
         sed -n "${START_LINE},${END_LINE}p" resources/Fens.txt > temp.txt
-        mv temp.txt resources/Fens.txt
+        head -c -1 temp.txt > temp_no_newline.txt
+        mv temp_no_newline.txt resources/Fens.txt
         dotnet run ${{ matrix.opponent }} > output.log &
         DOTNET_PID=$!
         while ! grep -q "Match finished:" output.log; do sleep 1; done
