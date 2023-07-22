@@ -14,8 +14,8 @@ jobs:
   benchmark:
     strategy:
       matrix:
-        chunk: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  # Divide the file into 10 equal parts
         opponent: [EvilBot]
+        chunk: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  # Divide the file into 10 equal parts
     runs-on: ubuntu-latest
 
     steps:
@@ -49,13 +49,13 @@ jobs:
         DRAWS=$(grep -oP 'Match finished: \+\d+ =\K\d+' output.log)
         LOSSES=$(grep -oP 'Match finished: \+\d+ =\d+ -\K\d+' output.log)
         cd ..
-        echo "+$WINS =$DRAWS -$LOSSES" > result.txt
+        echo "+$WINS =$DRAWS -$LOSSES" > res_${{ matrix.chunk }}.txt
 
     - name: Upload result
       uses: actions/upload-artifact@v3
       with:
-        name: res_${{ matrix.opponent }}_${{ matrix.chunk }}
-        path: result.txt
+        name: res_${{ matrix.opponent }}
+        path: res_${{ matrix.chunk }}.txt
 
   combine_results:
     needs: benchmark
