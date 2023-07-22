@@ -48,21 +48,39 @@ jobs:
         echo "draws=$DRAWS" >> $GITHUB_OUTPUT
         echo "losses=$LOSSES" >> $GITHUB_OUTPUT
 
-  publish_stats:
+
+  generate_comment:
     needs: benchmark_evil_bot
+    runs-on: ubuntu-latest
+    outputs:
+      comment: ${{ steps.generate.outputs.comment }}
+
+    steps:
+    - name: Generate comment
+      id: generate
+      run: |
+        COMMENT="Benchmark of commit ${{ github.event.head_commit.message }} (#${{ github.sha }})\n"
+        COMMENT+="| Opponent | Wins | Draws | Losses |\n"
+        COMMENT+="| --- | --- | --- | --- |\n"
+        COMMENT+="| EvilBot | ${{ needs.benchmark_evil_bot.outputs.wins }} | ${{ needs.benchmark_evil_bot.outputs.draws }} | ${{ needs.benchmark_evil_bot.outputs.losses }} |"
+        echo "comment=$COMMENT" >> $GITHUB_OUTPUT
+
+
+  publish_stats:
+    needs: generate_comment
     runs-on: ubuntu-latest
 
     steps:
     - name: Print stats
       run: |
-        echo "EvilBot: +${{ needs.benchmark_evil_bot.outputs.wins }} =${{ needs.benchmark_evil_bot.outputs.draws }} -${{ needs.benchmark_evil_bot.outputs.losses }}"
+        echo "::notice title=Benchmark against EvilBot::+${{ needs.benchmark_evil_bot.outputs.wins }} =${{ needs.benchmark_evil_bot.outputs.draws }} -${{ needs.benchmark_evil_bot.outputs.losses }}"
 
     - name: Comment PR
       if: github.event_name == 'pull_request'
       uses: actions/github-script@v5
       with:
         script: |
-          const issueComment = `EvilBot: +${{ needs.benchmark_evil_bot.outputs.wins }} =${{ needs.benchmark_evil_bot.outputs.draws }} -${{ needs.benchmark_evil_bot.outputs.losses }}`
+          const issueComment = `${{ needs.generate_comment.outputs.comment }}`
           github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
