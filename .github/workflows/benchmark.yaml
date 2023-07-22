@@ -24,6 +24,12 @@ jobs:
       with:
         dotnet-version: '6.0.x'
 
+    - name: Setup Xvfb
+      run: |
+        sudo apt-get install -y xvfb
+        Xvfb :99 &
+        echo "DISPLAY=:99.0" >> $GITHUB_ENV
+
     - name: Run EvilBot
       id: evil_bot
       run: |
