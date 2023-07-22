@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         opponent: [EvilBot]
-        chunk: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  # Divide the file into 10 equal parts
+        chunk: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]  # Divide the file into 10 equal parts
     runs-on: ubuntu-latest
 
     steps:
@@ -36,8 +36,8 @@ jobs:
     - name: Benchmark against ${{ matrix.opponent }}
       run: |
         cd Chess-Challenge
-        START_LINE=$(( (${{ matrix.chunk }} - 1) * 50 + 1 ))
-        END_LINE=$(( $START_LINE + 49 ))
+        START_LINE=$(( (${{ matrix.chunk }} - 1) * 25 + 1 ))
+        END_LINE=$(( $START_LINE + 24 ))
         sed -n "${START_LINE},${END_LINE}p" resources/Fens.txt > temp.txt
         head -c -1 temp.txt > temp_no_newline.txt
         mv temp_no_newline.txt resources/Fens.txt
