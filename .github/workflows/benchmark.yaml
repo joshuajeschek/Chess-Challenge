@@ -65,16 +65,16 @@ jobs:
         COMMENT+="| EvilBot | ${{ needs.benchmark_evil_bot.outputs.wins }} | ${{ needs.benchmark_evil_bot.outputs.draws }} | ${{ needs.benchmark_evil_bot.outputs.losses }} |"
         echo "comment=$COMMENT" >> $GITHUB_OUTPUT
 
+    - name: Print stats
+      run: |
+        echo "::notice title=Benchmark against EvilBot::+${{ needs.benchmark_evil_bot.outputs.wins }} =${{ needs.benchmark_evil_bot.outputs.draws }} -${{ needs.benchmark_evil_bot.outputs.losses }}"
+
 
   publish_stats:
     needs: generate_comment
     runs-on: ubuntu-latest
 
     steps:
-    - name: Print stats
-      run: |
-        echo "::notice title=Benchmark against EvilBot::+${{ needs.benchmark_evil_bot.outputs.wins }} =${{ needs.benchmark_evil_bot.outputs.draws }} -${{ needs.benchmark_evil_bot.outputs.losses }}"
-
     - name: Comment PR
       if: github.event_name == 'pull_request'
       uses: actions/github-script@v5
