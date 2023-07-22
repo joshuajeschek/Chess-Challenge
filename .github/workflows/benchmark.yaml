@@ -56,12 +56,15 @@ jobs:
       comment: ${{ steps.generate.outputs.comment }}
 
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
     - name: Generate comment
       id: generate
       run: |
         COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
         SHORT_SHA=$(git rev-parse --short HEAD)
-        COMMENT="Benchmark of commit `${COMMIT_MESSAGE} (#${SHORT_SHA})`\n"
+        COMMENT="Benchmark of commit \`${COMMIT_MESSAGE} (#${SHORT_SHA})\`\n"
         COMMENT+="| Opponent | Wins | Draws | Losses |\n"
         COMMENT+="| --- | --- | --- | --- |\n"
         COMMENT+="| EvilBot | ${{ needs.benchmark_evil_bot.outputs.wins }} | ${{ needs.benchmark_evil_bot.outputs.draws }} | ${{ needs.benchmark_evil_bot.outputs.losses }} |"
