@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         opponent: [EvilBot]
-        chunk: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50]
+        chunk: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
     runs-on: ubuntu-latest
 
     steps:
@@ -36,8 +36,8 @@ jobs:
     - name: Benchmark against ${{ matrix.opponent }}
       run: |
         cd Chess-Challenge
-        START_LINE=$(( (${{ matrix.chunk }} - 1) * 10 + 1 ))
-        END_LINE=$(( $START_LINE + 9 ))
+        START_LINE=$(( (${{ matrix.chunk }} - 1) * 20 + 1 ))
+        END_LINE=$(( $START_LINE + 19 ))
         sed -n "${START_LINE},${END_LINE}p" resources/Fens.txt > temp.txt
         head -c -1 temp.txt > temp_no_newline.txt
         mv temp_no_newline.txt resources/Fens.txt
