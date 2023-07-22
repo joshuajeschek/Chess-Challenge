@@ -68,6 +68,7 @@ jobs:
         COMMENT+="| Opponent | Wins | Draws | Losses |\n"
         COMMENT+="| --- | --- | --- | --- |\n"
         COMMENT+="| EvilBot | ${{ needs.benchmark_evil_bot.outputs.wins }} | ${{ needs.benchmark_evil_bot.outputs.draws }} | ${{ needs.benchmark_evil_bot.outputs.losses }} |"
+        COMMENT=$(echo "$COMMENT" | sed "s/\`/\\\\\`/g")
         echo "comment=$COMMENT" >> $GITHUB_OUTPUT
 
     - name: Print stats
