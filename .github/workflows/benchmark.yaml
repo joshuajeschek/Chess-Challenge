@@ -101,7 +101,7 @@ jobs:
             repo: context.repo.repo,
             pull_number: context.issue.number
           })
-          const existingDescription = pr.data.body
+          const existingDescription = pr.data.body || ''
           const benchmarkIndex = existingDescription.indexOf('<!-- benchmark -->')
           const newDescription = benchmarkIndex >= 0 ? existingDescription.slice(0, benchmarkIndex) : existingDescription
           const prDescription = `${newDescription}\n<!-- benchmark -->\n**Latest benchmark results:**\n\n${issueComment}`
