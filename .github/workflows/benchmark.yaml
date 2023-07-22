@@ -74,7 +74,7 @@ jobs:
         wins_EvilBot=0
         draws_EvilBot=0
         losses_EvilBot=0
-        for file in res_EvilBot_*; do
+        for file in res_EvilBot/*; do
           RESULT=$(cat $file)
           wins_EvilBot=$((wins_EvilBot + $(echo $RESULT | grep -oP '\+\K\d+')))
           draws_EvilBot=$((draws_EvilBot + $(echo $RESULT | grep -oP '=\K\d+')))
