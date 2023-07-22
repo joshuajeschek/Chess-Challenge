@@ -58,6 +58,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 5
 
     - name: Generate comment
       id: generate
