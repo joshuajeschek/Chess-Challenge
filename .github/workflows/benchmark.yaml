@@ -78,7 +78,7 @@ jobs:
           RESULT=$(cat $file)
           wins_EvilBot=$((wins_EvilBot + $(echo $RESULT | grep -oP '\+\K\d+')))
           draws_EvilBot=$((draws_EvilBot + $(echo $RESULT | grep -oP '=\K\d+')))
-          losses_EvilBot=$((losses_EvilBot + $(echo $RESULT | grep -oP '-\K\d+')))
+          losses_EvilBot=$((losses_EvilBot + $(echo $RESULT | grep -oP '\-\K\d+')))
         done
         echo "wins_EvilBot=$wins_EvilBot" >> $GITHUB_OUTPUT
         echo "draws_EvilBot=$draws_EvilBot" >> $GITHUB_OUTPUT
