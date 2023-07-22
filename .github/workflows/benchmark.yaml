@@ -59,7 +59,9 @@ jobs:
     - name: Generate comment
       id: generate
       run: |
-        COMMENT="Benchmark of commit ${{ github.event.head_commit.message }} (#${{ github.sha }})\n"
+        COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
+        SHORT_SHA=$(git rev-parse --short HEAD)
+        COMMENT="Benchmark of commit `${COMMIT_MESSAGE} (#${SHORT_SHA})`\n"
         COMMENT+="| Opponent | Wins | Draws | Losses |\n"
         COMMENT+="| --- | --- | --- | --- |\n"
         COMMENT+="| EvilBot | ${{ needs.benchmark_evil_bot.outputs.wins }} | ${{ needs.benchmark_evil_bot.outputs.draws }} | ${{ needs.benchmark_evil_bot.outputs.losses }} |"
