@@ -289,6 +289,7 @@ namespace ChessChallenge.Application
                     UpdateBotMatchStats(result);
                     botMatchGameIndex++;
                     int numGamesToPlay = botMatchStartFens.Length * 2;
+                    numGamesToPlay = 10;
 
                     if (botMatchGameIndex < numGamesToPlay && autoStartNextBotMatch)
                     {
