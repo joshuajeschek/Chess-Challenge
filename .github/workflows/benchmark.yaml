@@ -41,7 +41,7 @@ jobs:
         Xvfb :99 &
         echo "DISPLAY=:99.0" >> $GITHUB_ENV
     - name: Prepare
-      run: ${{ inputs.run || 'False' }} || echo "Nothing to prepare"
+      run: ${{ inputs.run || 'echo "Nothing to prepare"' }}
     - name: Run Benchmark
       id: benchmark
       run: |
