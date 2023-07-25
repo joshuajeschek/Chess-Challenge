@@ -41,7 +41,6 @@ for ((i=0; i<num_threads; i++)); do
   # spawn a separate sub-process to monitor the log file and kill the dotnet process when it finishes
   (while true; do
     if grep -q 'Match finished:' "$LOGS_DIR/thread_$i.log"; then
-      echo "$pid finished (thread $i))"
       kill $pid
       break
     fi
