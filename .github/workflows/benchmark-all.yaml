@@ -18,7 +18,7 @@ jobs:
     uses: ./.github/workflows/benchmark.yaml
     with:
       opponent: EvilBot
-      threads: 25
+      threads: 20
 
   evilbot_publish:
     uses: ./.github/workflows/publish-result.yaml
@@ -35,7 +35,7 @@ jobs:
     uses: ./.github/workflows/benchmark.yaml
     with:
       opponent: Stockfish
-      threads: 25
+      threads: 20
       run: |
         cd Chess-Challenge
         wget https://github.com/official-stockfish/Stockfish/releases/download/sf_16/stockfish-ubuntu-x86-64-avx2.tar
