@@ -21,6 +21,7 @@ on:
 
 jobs:
   prepare:
+    name: Prepare publish
     runs-on: ubuntu-latest
     outputs:
       short_sha: ${{ steps.export.outputs.short_sha }}
@@ -37,7 +38,8 @@ jobs:
         SHORT_SHA=$(echo $LAST_COMMIT_SHA | cut -c 1-7)
         echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
 
-  publish_stats:
+  publish:
+    name: Publish
     needs: prepare
     runs-on: ubuntu-latest
 
