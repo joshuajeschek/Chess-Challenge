@@ -28,7 +28,7 @@ jobs:
         level: [0, 1]
     with:
       opponent: Stockfish
-      opponent_long: Stockfish ${{ matrix.level }}
+      opponent_long: Stockfish (${{ matrix.level }})
       threads: 20
       run: |
         cd Chess-Challenge
