@@ -48,8 +48,13 @@ for ((i=0; i<num_threads; i++)); do
   done) &
   pids[$i]=$pid
 
-  # wait before starting next thread
-  sleep 5
+  # wait until the dotnet program has started
+  while true; do
+    if grep -q 'Launching Chess-Challenge' "$LOGS_DIR/thread_$i.log"; then
+      break
+    fi
+    sleep 1
+  done
 done
 
 # initialize total wins, draws and losses
