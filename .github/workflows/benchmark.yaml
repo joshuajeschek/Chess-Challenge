@@ -34,6 +34,10 @@ jobs:
       THREADS: ${{ inputs.threads }}
       OPPONENT: ${{ inputs.opponent }}
       OPPONENT_LONG: ${{ inputs.opponent_long || inputs.opponent }}
+    outputs:
+      wins: ${{ steps.benchmark.outputs.wins }}
+      draws: ${{ steps.benchmark.outputs.draws }}
+      losses: ${{ steps.benchmark.outputs.losses }}
 
     steps:
     - name: Checkout
@@ -50,6 +54,7 @@ jobs:
     - name: Prepare
       run: ${{ inputs.run || 'False' }} || echo "Nothing to prepare"
     - name: Run Benchmark
+      id: benchmark
       run: |
         ./scripts/benchmark.sh $THREADS $OPPONENT > >(tee output.log)
         WINS=$(grep -oP 'Benchmark finished: \+\K\d+' output.log)
