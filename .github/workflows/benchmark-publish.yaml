@@ -44,10 +44,12 @@ jobs:
 
   publish:
     uses: ./.github/workflows/publish-result.yaml
-    needs: benchmark
+    needs:
+      - benchmark
+      - prepare
     if: ${{ github.event_name == 'pull_request' }}
     with:
-      opponent: ${{ jobs.prepare.outputs.opponent_long }}
+      opponent: ${{ needs.prepare.outputs.opponent_long }}
       pull_number: ${{ github.event.pull_request.number }}
       wins: ${{ fromJSON(needs.benchmark.outputs.wins) }}
       draws: ${{ fromJSON(needs.benchmark.outputs.draws) }}
