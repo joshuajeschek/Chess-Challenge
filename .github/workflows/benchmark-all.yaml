@@ -35,7 +35,7 @@ jobs:
     with:
       opponent: EvilBot
       pull_number: ${{ github.event.pull_request.number }}
-      wins: ${{ needs.evilbot_benchmark.outputs.wins }}
-      draws: 420
-      losses: 1337
+      wins: ${{ fromJSON(needs.evilbot_benchmark.outputs.wins) }}
+      draws: ${{ fromJSON(needs.evilbot_benchmark.outputs.draws) }}
+      losses: ${{ fromJSON(needs.evilbot_benchmark.outputs.losses) }}
 
