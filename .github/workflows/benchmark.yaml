@@ -119,6 +119,8 @@ jobs:
   combine:
     needs: benchmark
     runs-on: ubuntu-latest
+    env:
+      OPPONENT: ${{ inputs.opponent }}
     outputs:
       wins: ${{ steps.combine.outputs.wins }}
       draws: ${{ steps.combine.outputs.draws }}
@@ -143,4 +145,4 @@ jobs:
         echo "wins=$wins" >> $GITHUB_OUTPUT
         echo "draws=$draws" >> $GITHUB_OUTPUT
         echo "losses=$losses" >> $GITHUB_OUTPUT
-        echo "::notice title=Result::$wins wins, $draws draws, $losses losses"
+        echo "::notice title=Result against $OPPONENT::$wins wins, $draws draws, $losses losses"

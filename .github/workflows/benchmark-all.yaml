@@ -47,5 +47,5 @@ jobs:
       opponent: Stockfish (0)
       pull_number: ${{ github.event.pull_request.number }}
       wins: ${{ fromJSON(needs.stockfish_0_benchmark.outputs.wins) }}
-      draws: ${{ fromJSON(needs.stockfish_0_publish.outputs.draws) }}
+      draws: ${{ fromJSON(needs.stockfish_0_benchmark.outputs.draws) }}
       losses: ${{ fromJSON(needs.stockfish_0_benchmark.outputs.losses) }}
