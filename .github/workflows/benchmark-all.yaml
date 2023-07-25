@@ -26,7 +26,7 @@ jobs:
     with:
       opponent: Stockfish
       opponent_long: Stockfish (0)
-      threads: 10
+      threads: 20
       run: |
         cd Chess-Challenge
         wget https://github.com/official-stockfish/Stockfish/releases/download/sf_16/stockfish-ubuntu-x86-64-avx2.tar
