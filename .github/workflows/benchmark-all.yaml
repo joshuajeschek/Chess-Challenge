@@ -15,26 +15,47 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # evilbot:
+  #   name: EvilBot
+  #   uses: ./.github/workflows/benchmark-publish.yaml
+  #   with:
+  #     opponent: EvilBot
+  #     threads: 20
+  #
+  # stockfish:
+  #   name: Stockfish
+  #   uses: ./.github/workflows/benchmark-publish.yaml
+  #   strategy:
+  #     matrix:
+  #       level: [0, 1]
+  #   with:
+  #     opponent: Stockfish
+  #     suffix: ${{ matrix.level }}
+  #     threads: 19
+  #     run: |
+  #       cd Chess-Challenge
+  #       wget https://github.com/official-stockfish/Stockfish/releases/download/sf_16/stockfish-ubuntu-x86-64-avx2.tar
+  #       tar -xf stockfish-ubuntu-x86-64-avx2.tar
+  #       echo "STOCKFISH_BIN=stockfish/stockfish-ubuntu-x86-64-avx2" >> $GITHUB_ENV
+  #       echo "STOCKFISH_LEVEL=${{ matrix.level }}" >> $GITHUB_ENV
   evilbot:
-    name: EvilBot
-    uses: ./.github/workflows/benchmark-publish.yaml
-    with:
-      opponent: EvilBot
-      threads: 20
-
-  stockfish:
-    name: Stockfish
-    uses: ./.github/workflows/benchmark-publish.yaml
-    strategy:
-      matrix:
-        level: [0, 1]
-    with:
-      opponent: Stockfish
-      suffix: ${{ matrix.level }}
-      threads: 19
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '6.0.x'
+    - name: Setup Xvfb
       run: |
-        cd Chess-Challenge
-        wget https://github.com/official-stockfish/Stockfish/releases/download/sf_16/stockfish-ubuntu-x86-64-avx2.tar
-        tar -xf stockfish-ubuntu-x86-64-avx2.tar
-        echo "STOCKFISH_BIN=stockfish/stockfish-ubuntu-x86-64-avx2" >> $GITHUB_ENV
-        echo "STOCKFISH_LEVEL=${{ matrix.level }}" >> $GITHUB_ENV
+        sudo apt-get install -y xvfb
+        Xvfb :99 &
+        echo "DISPLAY=:99.0" >> $GITHUB_ENV
+    - name: Run Benchmark
+      run: |
+        ./scripts/benchmark.sh 25 EvilBot | tee output.log
+        WINS=$(grep -oP 'Benchmark finished: \+\K\d+' output.log)
+        DRAWS=$(grep -oP 'Benchmark finished: \+\d+ =\K\d+' output.log)
+        LOSSES=$(grep -oP 'Benchmark finished: \+\d+ =\d+ -\K\d+' output.log)
+        echo "::notice title=Results::$WINS wins, $DRAWS draws, $LOSSES losses"

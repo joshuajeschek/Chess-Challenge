@@ -70,7 +70,21 @@ namespace ChessChallenge.Application
 
             BotStatsA = new BotMatchStats("IBot");
             BotStatsB = new BotMatchStats("IBot");
-            botMatchStartFens = FileHelper.ReadResourceFile("Fens.txt").Split('\n').Where(fen => fen.Length > 0).ToArray();
+            var fensStartRaw = Environment.GetEnvironmentVariable("FENS_START");
+            var fensEndRaw = Environment.GetEnvironmentVariable("FENS_END");
+            int fensStart = Int32.MinValue;
+            int fensEnd = Int32.MaxValue;
+            if (fensStartRaw != null) {
+              fensStart = Int32.Parse(fensStartRaw);
+            }
+            if (fensEndRaw != null) {
+              fensEnd = Int32.Parse(fensEndRaw);
+            }
+
+            botMatchStartFens = FileHelper.ReadResourceFile("Fens.txt").Split('\n')
+              .Where((_, index) => index >= fensStart && index <= fensEnd)
+              .Where(fen => fen.Length > 0)
+              .ToArray();
             botTaskWaitHandle = new AutoResetEvent(false);
 
             StartNewGame(PlayerType.Human, PlayerType.MyBot);
