@@ -113,7 +113,7 @@ jobs:
     - name: Upload result
       uses: actions/upload-artifact@v3
       with:
-        name: res
+        name: res_${{ inputs.opponent }}
         path: res_${{ matrix.chunk }}.txt
 
   combine:
@@ -136,7 +136,7 @@ jobs:
         wins=0
         draws=0
         losses=0
-        for file in res/*; do
+        for file in res_$OPPONENT/*; do
           RESULT=$(cat $file)
           wins=$((wins + $(echo $RESULT | grep -oP '\+\K\d+')))
           draws=$((draws + $(echo $RESULT | grep -oP '=\K\d+')))
