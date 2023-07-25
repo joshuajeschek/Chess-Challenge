@@ -94,7 +94,7 @@ jobs:
         echo $END_LINE
         sed -n "${START_LINE},${END_LINE}p" resources/Fens.txt > temp.txt
         mv temp.txt resources/Fens.txt
-        dotnet run $OPPONENT | tee output.log &
+        dotnet run $OPPONENT > >(tee output.log) &
         DOTNET_PID=$!
         while ! grep -q "Match finished:" output.log; do sleep 1; done
         kill $DOTNET_PID
