@@ -6,7 +6,7 @@ on:
       opponent:
         required: true
         type: string
-      oppenent_long:
+      opponent_long:
         required: false
         type: string
       threads:
