@@ -31,7 +31,7 @@ jobs:
     with:
       opponent: Stockfish
       suffix: ${{ matrix.level }}
-      threads: 20
+      threads: 19
       run: |
         cd Chess-Challenge
         wget https://github.com/official-stockfish/Stockfish/releases/download/sf_16/stockfish-ubuntu-x86-64-avx2.tar
