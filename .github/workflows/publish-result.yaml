@@ -1,4 +1,4 @@
-name: Publish benchmark result
+name: Publish Results
 
 on:
   workflow_call:

@@ -1,0 +1,36 @@
+name: Benchmark & Publish
+
+on:
+  workflow_call:
+    inputs:
+      opponent:
+        required: true
+        type: string
+      opponent_long:
+        required: false
+        type: string
+      threads:
+        required: true
+        type: number
+      run:
+        required: false
+        type: string
+
+jobs:
+  benchmark:
+    uses: ./.github/workflows/benchmark.yaml
+    with:
+      opponent: ${{ inputs.opponent }}
+      threads: ${{ fromJSON(inputs.threads) }}
+      run: ${{ inputs.run }}
+
+  publish:
+    uses: ./.github/workflows/publish-result.yaml
+    needs: benchmark
+    if: ${{ github.event_name == 'pull_request' }}
+    with:
+      opponent: ${{ inputs.opponent_long || inputs.opponent }}
+      pull_number: ${{ github.event.pull_request.number }}
+      wins: ${{ fromJSON(needs.benchmark.outputs.wins) }}
+      draws: ${{ fromJSON(needs.benchmark.outputs.draws) }}
+      losses: ${{ fromJSON(needs.benchmark.outputs.losses) }}

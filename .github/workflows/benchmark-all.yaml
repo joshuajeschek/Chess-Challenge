@@ -1,4 +1,5 @@
-name: Benchmark MyBot against all opponents
+name: Benchmark All
+
 on:
   push:
     branches:
@@ -14,27 +15,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  evilbot_benchmark:
-    uses: ./.github/workflows/benchmark.yaml
+  evilbot:
+    uses: ./.github/workflows/benchmark-publish.yaml
     with:
       opponent: EvilBot
       threads: 20
 
-  evilbot_publish:
-    uses: ./.github/workflows/publish-result.yaml
-    needs: evilbot_benchmark
-    if: ${{ github.event_name == 'pull_request' }}
-    with:
-      opponent: EvilBot
-      pull_number: ${{ github.event.pull_request.number }}
-      wins: ${{ fromJSON(needs.evilbot_benchmark.outputs.wins) }}
-      draws: ${{ fromJSON(needs.evilbot_benchmark.outputs.draws) }}
-      losses: ${{ fromJSON(needs.evilbot_benchmark.outputs.losses) }}
-
-  stockfish_0_benchmark:
+  stockfish_0:
     uses: ./.github/workflows/benchmark.yaml
     with:
       opponent: Stockfish
+      opponent_long: Stockfish (0)
       threads: 20
       run: |
         cd Chess-Challenge
@@ -42,14 +33,3 @@ jobs:
         tar -xf stockfish-ubuntu-x86-64-avx2.tar
         echo "STOCKFISH_BIN=stockfish/stockfish-ubuntu-x86-64-avx2" >> $GITHUB_ENV
         echo "STOCKFISH_LEVEL=0" >> $GITHUB_ENV
-
-  stockfish_0_publish:
-    uses: ./.github/workflows/publish-result.yaml
-    needs: stockfish_0_benchmark
-    if: ${{ github.event_name == 'pull_request' }}
-    with:
-      opponent: Stockfish (0)
-      pull_number: ${{ github.event.pull_request.number }}
-      wins: ${{ fromJSON(needs.stockfish_0_benchmark.outputs.wins) }}
-      draws: ${{ fromJSON(needs.stockfish_0_benchmark.outputs.draws) }}
-      losses: ${{ fromJSON(needs.stockfish_0_benchmark.outputs.losses) }}
