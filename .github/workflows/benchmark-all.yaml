@@ -22,7 +22,7 @@ jobs:
       threads: 20
 
   stockfish_0:
-    uses: ./.github/workflows/benchmark.yaml
+    uses: ./.github/workflows/benchmark-publish.yaml
     with:
       opponent: Stockfish
       opponent_long: Stockfish (0)
