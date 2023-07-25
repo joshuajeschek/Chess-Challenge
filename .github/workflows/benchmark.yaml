@@ -54,7 +54,7 @@ jobs:
         CHUNKS="[$CHUNKS]"
         OPPONENT_KEY="$OPPONENT"
         OPPONENT_NAME="$OPPONENT"
-        if [ -n "$SUFFIX" ]; then
+        if [ "$SUFFIX" ]; then
           OPPONENT_KEY="$OPPONENT_$SUFFIX"
           OPPONENT_NAME="$OPPONENT ($SUFFIX)"
         fi
