@@ -90,8 +90,11 @@ jobs:
         cd Chess-Challenge
         START_LINE=$(( ${{ matrix.chunk }} * $OFFSET + 1 ))
         END_LINE=$(( $START_LINE + $OFFSET - 1 ))
+        echo $START_LINE
+        echo $END_LINE
         sed -n "${START_LINE},${END_LINE}p" resources/Fens.txt > temp.txt
-        dotnet run $OPPONENT > output.log &
+        mv temp.txt resources/Fens.txt
+        dotnet run $OPPONENT | tee output.log &
         DOTNET_PID=$!
         while ! grep -q "Match finished:" output.log; do sleep 1; done
         kill $DOTNET_PID
