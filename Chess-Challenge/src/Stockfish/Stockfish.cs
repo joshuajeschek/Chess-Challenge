@@ -8,6 +8,8 @@ public class Stockfish : IChessBot {
     private StreamWriter Ins() => stockfishProcess.StandardInput;
     private StreamReader Outs() => stockfishProcess.StandardOutput;
 
+    private static int SLOW_MOVER = 100;
+
     public Stockfish() {
         var stockFishBin = Environment.GetEnvironmentVariable("STOCKFISH_BIN");
         if (stockFishBin == null) {
@@ -40,6 +42,7 @@ public class Stockfish : IChessBot {
         }
 
         Ins().WriteLine($"setoption name Skill Level value {skillLevel}");
+        Ins().WriteLine($"setoption name Slow Mover value {SLOW_MOVER}");
     }
 
     public Move Think(Board board, Timer timer) {
