@@ -93,8 +93,7 @@ jobs:
         echo $START_LINE
         echo $END_LINE
         sed -n "${START_LINE},${END_LINE}p" resources/Fens.txt > temp.txt
-        head -c -1 temp.txt > temp_no_newline.txt
-        mv temp_no_newline.txt resources/Fens.txt
+        mv temp.txt resources/Fens.txt
         cat resources/Fens.txt
         touch output.log
         dotnet run $OPPONENT > >(tee output.log) &
