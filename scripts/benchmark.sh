@@ -33,7 +33,7 @@ for ((i=0; i<num_threads; i++)); do
     end=$num_lines
   fi
 
-  echo "Thread $i: $start - $end" > "$LOGS_DIR/thread_$i.log"
+  echo "Thread $i: $start - $end" > >(tee "$LOGS_DIR/thread_$i.log")
   # run the dotnet program and tee output to a log file
   FENS_START=$start FENS_END=$end dotnet run $@ > >(tee "$LOGS_DIR/thread_$i.log") &
   pid=$!
