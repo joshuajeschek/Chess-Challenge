@@ -6,6 +6,9 @@ on:
       opponent:
         required: true
         type: string
+      pull_number:
+        required: true
+        type: number
       wins:
         required: true
         type: number
@@ -13,9 +16,6 @@ on:
         required: true
         type: number
       losses:
-        required: true
-        type: number
-      pull_number:
         required: true
         type: number
 

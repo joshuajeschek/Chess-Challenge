@@ -17,13 +17,16 @@ jobs:
       threads: 25
 
   evilbot_publish:
+    runs-on: ubuntu-latest
     if: ${{ github.event_name == 'pull_request' }}
     needs: evilbot_benchmark
-    uses: ./.github/workflows/publish-result.yaml
-    with:
-      opponent: EvilBot
-      pull_number: ${{ github.event.pull_request.number }}
-      wins: ${{ needs.evilbot_benchmark.outputs.wins }}
-      draws: ${{ needs.evilbot_benchmark.outputs.draws }}
-      losses: ${{ needs.evilbot_benchmark.outputs.losses }}
+    steps:
+      - run: echo ${{ needs.evilbot_benchmark.outputs.wins }} ${{ needs.evilbot_benchmark.outputs.draws }} ${{ needs.evilbot_benchmark.outputs.losses }}
+    # uses: ./.github/workflows/publish-result.yaml
+    # with:
+    #   opponent: EvilBot
+    #   pull_number: ${{ github.event.pull_request.number }}
+    #   wins: ${{ needs.evilbot_benchmark.outputs.wins }}
+    #   draws: ${{ needs.evilbot_benchmark.outputs.draws }}
+    #   losses: ${{ needs.evilbot_benchmark.outputs.losses }}
 
