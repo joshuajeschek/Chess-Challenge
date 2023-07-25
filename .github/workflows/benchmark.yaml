@@ -28,7 +28,7 @@ on:
 
 jobs:
   prepare:
-    name: Prepare benchmark
+    name: pre-Benchmark
     runs-on: ubuntu-latest
     outputs:
       lines: ${{ steps.calculate.outputs.lines }}

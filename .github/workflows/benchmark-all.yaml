@@ -16,12 +16,14 @@ concurrency:
 
 jobs:
   evilbot:
+    name: EvilBot
     uses: ./.github/workflows/benchmark-publish.yaml
     with:
       opponent: EvilBot
       threads: 20
 
   stockfish:
+    name: Stockfish
     uses: ./.github/workflows/benchmark-publish.yaml
     strategy:
       matrix:

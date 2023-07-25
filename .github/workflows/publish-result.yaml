@@ -21,7 +21,7 @@ on:
 
 jobs:
   prepare:
-    name: Prepare publish
+    name: pre-Publish
     runs-on: ubuntu-latest
     outputs:
       short_sha: ${{ steps.export.outputs.short_sha }}

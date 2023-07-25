@@ -18,7 +18,7 @@ on:
 
 jobs:
   prepare:
-    name: Preprepare publish
+    name: pre-pre-Publish
     runs-on: ubuntu-latest
     env:
       OPPONENT: ${{ inputs.opponent }}
