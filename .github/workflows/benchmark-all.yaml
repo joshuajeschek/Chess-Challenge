@@ -19,7 +19,7 @@ jobs:
     uses: ./.github/workflows/benchmark.yaml
     with:
       opponent: EvilBot
-      threads: 2
+      threads: 5
 
   stockfish:
     if: false

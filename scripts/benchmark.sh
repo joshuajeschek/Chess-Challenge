@@ -47,6 +47,9 @@ for ((i=0; i<num_threads; i++)); do
     sleep 1
   done) &
   pids[$i]=$pid
+
+  # wait before starting next thread
+  sleep 5
 done
 
 # initialize total wins, draws and losses
