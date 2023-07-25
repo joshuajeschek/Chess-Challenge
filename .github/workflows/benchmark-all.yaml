@@ -54,7 +54,10 @@ jobs:
         echo "DISPLAY=:99.0" >> $GITHUB_ENV
     - name: Run Benchmark
       run: |
-        ./scripts/benchmark.sh 1 EvilBot | tee output.log
+        ./scripts/benchmark.sh 1 EvilBot > >(tee output.log) &
+        PID=$!
+        while ! grep -q "Benchmark finished:" output.log; do sleep 1; done
+        kill $PID
         WINS=$(grep -oP 'Benchmark finished: \+\K\d+' output.log)
         DRAWS=$(grep -oP 'Benchmark finished: \+\d+ =\K\d+' output.log)
         LOSSES=$(grep -oP 'Benchmark finished: \+\d+ =\d+ -\K\d+' output.log)
