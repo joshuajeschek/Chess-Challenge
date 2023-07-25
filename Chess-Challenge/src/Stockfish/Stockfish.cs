@@ -8,7 +8,7 @@ public class Stockfish : IChessBot {
     private StreamWriter Ins() => stockfishProcess.StandardInput;
     private StreamReader Outs() => stockfishProcess.StandardOutput;
 
-    private static int SLOW_MOVER = 100;
+    private static int SLOW_MOVER = 0;
 
     public Stockfish() {
         var stockFishBin = Environment.GetEnvironmentVariable("STOCKFISH_BIN");
