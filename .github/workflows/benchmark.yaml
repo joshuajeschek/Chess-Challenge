@@ -55,6 +55,7 @@ jobs:
       run: |
         LINES=$(wc -l < Chess-Challenge/resources/Fens.txt)
         OFFSET=$((LINES / THREADS + (LINES % THREADS != 0)))
+        THREADS=$((LINES / OFFSET+ (LINES % OFFSET != 0)))
         CHUNKS=$(seq 0 $((THREADS-1)) | tr '\n' ',' | sed 's/,$//')
         CHUNKS="[$CHUNKS]"
         echo "::notice title=Benchmark against $OPPONENT::$LINES FENs, $THREADS threads, $OFFSET FENs per thread"
