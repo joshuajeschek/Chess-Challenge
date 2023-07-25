@@ -15,13 +15,13 @@ on:
     outputs:
       wins:
         description: number of wins
-        value: ${{ jobs.combine_results.outputs.wins }}
+        value: ${{ jobs.combine.outputs.wins }}
       draws:
         description: number of draws
-        value: ${{ jobs.combine_results.outputs.draws }}
+        value: ${{ jobs.combine.outputs.draws }}
       losses:
         description: number of losses
-        value: ${{ jobs.combine_results.outputs.losses }}
+        value: ${{ jobs.combine.outputs.losses }}
 
   workflow_dispatch:
     inputs:
@@ -107,7 +107,7 @@ jobs:
         name: res
         path: res_${{ matrix.chunk }}.txt
 
-  combine_results:
+  combine:
     needs: benchmark
     runs-on: ubuntu-latest
     outputs:
