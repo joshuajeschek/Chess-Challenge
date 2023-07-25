@@ -104,7 +104,7 @@ jobs:
     - name: Upload result
       uses: actions/upload-artifact@v3
       with:
-        name: res_${{ inputs.opponent }}
+        name: res_${{ inputs.opponent_long || inputs.opponent }}
         path: res_${{ matrix.chunk }}.txt
 
   combine:
