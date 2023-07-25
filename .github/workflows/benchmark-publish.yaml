@@ -6,7 +6,7 @@ on:
       opponent:
         required: true
         type: string
-      opponent_long:
+      suffix:
         required: false
         type: string
       threads:
@@ -17,11 +17,28 @@ on:
         type: string
 
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    env:
+      OPPONENT: ${{ inputs.opponent }}
+      SUFFIX: ${{ inputs.suffix }}
+    outputs:
+      opponent_long: ${{ steps.prepare.outputs.opponent_long }}
+    steps:
+    - name: Prepare long name
+      id: prepare
+      run: |
+        OPPONENT_LONG="$OPPONENT"
+        if [ -n "$SUFFIX" ]; then
+          OPPONENT_LONG="$OPPONENT ($SUFFIX)"
+        fi
+        echo "opponent_long=$OPPONENT_LONG" >> $GITHUB_OUTPUT
+
   benchmark:
     uses: ./.github/workflows/benchmark.yaml
     with:
       opponent: ${{ inputs.opponent }}
-      opponent_long: ${{ inputs.opponent_long }}
+      suffix: ${{ inputs.suffix }}
       threads: ${{ fromJSON(inputs.threads) }}
       run: ${{ inputs.run }}
 
@@ -30,7 +47,7 @@ jobs:
     needs: benchmark
     if: ${{ github.event_name == 'pull_request' }}
     with:
-      opponent: ${{ inputs.opponent_long || inputs.opponent }}
+      opponent: ${{ jobs.prepare.outputs.opponent_long }}
       pull_number: ${{ github.event.pull_request.number }}
       wins: ${{ fromJSON(needs.benchmark.outputs.wins) }}
       draws: ${{ fromJSON(needs.benchmark.outputs.draws) }}

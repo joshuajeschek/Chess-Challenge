@@ -6,7 +6,7 @@ on:
       opponent:
         required: true
         type: string
-      opponent_long:
+      suffix:
         required: false
         type: string
       threads:
@@ -33,15 +33,18 @@ jobs:
       lines: ${{ steps.calculate.outputs.lines }}
       chunks: ${{ steps.calculate.outputs.chunks }}
       offset: ${{ steps.calculate.outputs.offset }}
+      opponent_key: ${{ steps.calculate.outputs.opponent_key }}
+      opponent_name: ${{ steps.calculate.outputs.opponent_name }}
     env:
       THREADS: ${{ inputs.threads }}
-      OPPONENT: ${{ inputs.opponent_long || inputs.opponent }}
+      OPPONENT: ${{ inputs.opponent }}
+      SUFFIX: ${{ inputs.suffix }}
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Calculate chunking parameters
+    - name: Calculate chunking parameters and opponent key
       id: calculate
       run: |
         LINES=$(wc -l < Chess-Challenge/resources/Fens.txt)
@@ -49,10 +52,19 @@ jobs:
         THREADS=$((LINES / OFFSET+ (LINES % OFFSET != 0)))
         CHUNKS=$(seq 0 $((THREADS-1)) | tr '\n' ',' | sed 's/,$//')
         CHUNKS="[$CHUNKS]"
-        echo "::notice title=Benchmark against $OPPONENT::$LINES FENs, $THREADS threads, $OFFSET FENs per thread"
+        OPPONENT_KEY="$OPPONENT"
+        OPPONENT_NAME="$OPPONENT"
+        if [ -n "$SUFFIX" ]; then
+          OPPONENT_KEY="$OPPONENT_$SUFFIX"
+          OPPONENT_NAME="$OPPONENT ($SUFFIX)"
+        fi
+        echo "::notice title=Benchmark against $OPPONENT_NAME::$LINES FENs, $THREADS threads, $OFFSET FENs per thread"
         echo "chunks=$CHUNKS" >> $GITHUB_OUTPUT
         echo "offset=$OFFSET" >> $GITHUB_OUTPUT
         echo "lines=$LINES" >> $GITHUB_OUTPUT
+        echo "opponent_key=$OPPONENT_KEY" >> $GITHUB_OUTPUT
+        echo "opponent_name=$OPPONENT_NAME" >> $GITHUB_OUTPUT
+
 
   benchmark:
     needs: prepare
@@ -104,14 +116,15 @@ jobs:
     - name: Upload result
       uses: actions/upload-artifact@v3
       with:
-        name: res_${{ inputs.opponent_long || inputs.opponent }}
+        name: res_${{ needs.prepare.outputs.opponent_key }}
         path: res_${{ matrix.chunk }}.txt
 
   combine:
     needs: benchmark
     runs-on: ubuntu-latest
     env:
-      OPPONENT: ${{ inputs.opponent_long || inputs.opponent }}
+      OPPONENT_KEY: ${{ needs.prepare.outputs.opponent_key }}
+      OPPONENT_NAME: ${{ needs.prepare.outputs.opponent_name }}
     outputs:
       wins: ${{ steps.combine.outputs.wins }}
       draws: ${{ steps.combine.outputs.draws }}
@@ -127,7 +140,7 @@ jobs:
         wins=0
         draws=0
         losses=0
-        for file in res_$OPPONENT/*; do
+        for file in res_$OPPONENT_KEY/*; do
           RESULT=$(cat $file)
           wins=$((wins + $(echo $RESULT | grep -oP '\+\K\d+')))
           draws=$((draws + $(echo $RESULT | grep -oP '=\K\d+')))
@@ -136,4 +149,4 @@ jobs:
         echo "wins=$wins" >> $GITHUB_OUTPUT
         echo "draws=$draws" >> $GITHUB_OUTPUT
         echo "losses=$losses" >> $GITHUB_OUTPUT
-        echo "::notice title=Result against $OPPONENT::$wins wins, $draws draws, $losses losses"
+        echo "::notice title=Result against $OPPONENT_NAME::$wins wins, $draws draws, $losses losses"
