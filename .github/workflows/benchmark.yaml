@@ -88,7 +88,7 @@ jobs:
           const pr = await github.rest.pulls.get({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            pull_number: ${{ inputs.pull_number }}
+            pull_number: pull_number
           });
 
           const existingDescription = pr.data.body || '';
