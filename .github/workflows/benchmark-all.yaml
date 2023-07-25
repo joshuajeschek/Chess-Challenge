@@ -31,10 +31,11 @@ jobs:
     #   losses: ${{ needs.evilbot_benchmark.outputs.losses }}
 
     uses: ./.github/workflows/publish-result.yaml
+    needs: evilbot_benchmark
     with:
       opponent: EvilBot
       pull_number: ${{ github.event.pull_request.number }}
-      wins: 69
+      wins: ${{ needs.evilbot_benchmark.outputs.wins }}
       draws: 420
       losses: 1337
 
