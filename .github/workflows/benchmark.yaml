@@ -59,7 +59,6 @@ jobs:
         CHUNKS=$(seq 0 $((THREADS-1)) | tr '\n' ',' | sed 's/,$//')
         CHUNKS="[$CHUNKS]"
         echo "::notice title=Benchmark against $OPPONENT::$LINES FENs, $THREADS threads, $OFFSET FENs per thread"
-        echo "::notice title=Chunks::$CHUNKS"
         echo "chunks=$CHUNKS" >> $GITHUB_OUTPUT
         echo "offset=$OFFSET" >> $GITHUB_OUTPUT
         echo "lines=$LINES" >> $GITHUB_OUTPUT
@@ -98,11 +97,8 @@ jobs:
         cd Chess-Challenge
         START_LINE=$(( ${{ matrix.chunk }} * $OFFSET + 1 ))
         END_LINE=$(( $START_LINE + $OFFSET - 1 ))
-        echo $START_LINE
-        echo $END_LINE
         sed -n "${START_LINE},${END_LINE}p" resources/Fens.txt > temp.txt
         mv temp.txt resources/Fens.txt
-        cat resources/Fens.txt
         touch output.log
         dotnet run $OPPONENT > >(tee output.log) &
         DOTNET_PID=$!
