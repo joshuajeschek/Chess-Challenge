@@ -20,7 +20,7 @@ jobs:
     with:
       opponent: EvilBot
       threads: 2
-      jobs: 1
+      jobs: 2
       fens: 10
 
   # stockfish:
