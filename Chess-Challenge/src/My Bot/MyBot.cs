@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using System.Data;
+using static ChessChallenge.Application.ConsoleHelper;
 
 public class MyBot : IChessBot
 {
