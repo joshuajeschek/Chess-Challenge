@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   evilbot:
-    uses: ./.github/workflows/benchmark.yaml
+    uses: ./.github/workflows/benchmark-publish.yaml
     with:
       opponent: EvilBot
       threads: 2
