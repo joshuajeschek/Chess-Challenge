@@ -11,18 +11,9 @@ public class MyBot : IChessBot
 
     public Move Think(Board board, Timer timer)
     {
-        Move[] moves = board.GetLegalMoves();
-        Move bestMove = Move.NullMove;
-        int bestScore = Int32.MinValue;
-        foreach (Move move in moves) {
-          board.MakeMove(move);
-          int score = -Evaluate(board);
-          board.UndoMove(move);
-          if (score > bestScore) {
-            bestScore = score;
-            bestMove = move;
-          }
-        }
+        int depth = 0;
+        int maxdepth = 3;
+        int bestScore = Search(board, depth, maxdepth);
         return bestMove;
     }
 
