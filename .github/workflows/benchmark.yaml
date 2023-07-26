@@ -19,9 +19,12 @@ on:
         required: false
         type: string
     outputs:
-      wins: ${{ jobs.combine.outputs.wins }}
-      draws: ${{ jobs.combine.outputs.draws }}
-      losses: ${{ jobs.combine.outputs.losses }}
+      wins:
+        value: ${{ jobs.combine.outputs.wins }}
+      draws:
+        value: ${{ jobs.combine.outputs.draws }}
+      losses:
+        value: ${{ jobs.combine.outputs.losses }}
 
 jobs:
   prepare:
