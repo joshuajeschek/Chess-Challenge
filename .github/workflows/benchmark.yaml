@@ -6,6 +6,9 @@ on:
       opponent:
         required: true
         type: string
+      opponent_long:
+        required: false
+        type: string
       threads:
         required: true
         type: number
@@ -48,9 +51,9 @@ jobs:
           OFFSET=$((LINES / JOBS + (LINES % JOBS != 0)))
           JOBS=$((LINES / OFFSET + (LINES % OFFSET != 0)))
           CHUNKS="[$(seq 0 $((JOBS - 1)) | tr '\n' ',' | sed 's/,$//')]"
-          TIMESTAMP=$(date +%s)
-          KEY="${{inputs.opponent}}_$TIMESTAMP"
-          echo "::notice title=Benchmark against ${{inputs.opponent}} ($TIMESTAMP)::$LINES FENs, $JOBS jobs with ${{ inputs.threads }} threads, $OFFSET FENs per job"
+          SUFFIX=$(openssl rand -hex 4)
+          KEY="${{inputs.opponent}}_$SUFFIX"
+          echo "::notice title=Benchmark against ${{inputs.opponent_long || inputs.opponent }} ($SUFFIX)::$LINES FENs, $JOBS jobs with ${{ inputs.threads }} threads, $OFFSET FENs per job"
           echo "chunks=$CHUNKS" >> $GITHUB_OUTPUT
           echo "offset=$OFFSET" >> $GITHUB_OUTPUT
           echo "key=$KEY" >> $GITHUB_OUTPUT

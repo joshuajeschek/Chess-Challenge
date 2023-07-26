@@ -27,6 +27,7 @@ jobs:
     uses: ./.github/workflows/benchmark.yaml
     with:
       opponent: ${{ inputs.opponent }}
+      opponent_long: ${{ inputs.opponent_long }}
       threads: ${{ inputs.threads }}
       run: ${{ inputs.run }}
       jobs: ${{ inputs.jobs }}
