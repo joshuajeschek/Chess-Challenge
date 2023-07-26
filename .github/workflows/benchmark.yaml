@@ -6,23 +6,58 @@ on:
       opponent:
         required: true
         type: string
-      opponent_long:
-        required: false
-        type: string
       threads:
         required: true
+        type: number
+      jobs:
+        required: false
+        type: number
+      fens:
+        required: false
         type: number
       run:
         required: false
         type: string
+    outputs:
+      wins: ${{ steps.combine.outputs.wins }}
+      draws: ${{ steps.combine.outputs.draws }}
+      losses: ${{ steps.combine.outputs.losses }}
 
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      chunks: ${{ steps.prepare.outputs.chunks }}
+      offset: ${{ steps.prepare.outputs.offset }}
+      key: ${{ steps.prepare.outputs.key }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Prepare
+        id: prepare
+        run: |
+          JOBS=${{ inputs.jobs || 1 }}
+          if [ -n '${{ inputs.fens }}' ]; then
+            sed -n '1,${{ inputs.fens }}p' Chess-Challenge/resources/Fens.txt > tmp.txt
+            mv tmp.txt Chess-Challenge/resources/Fens.txt
+          fi
+          LINES=$(wc -l < Chess-Challenge/resources/Fens.txt)
+          OFFSET=$((LINES / JOBS + (LINES % JOBS != 0)))
+          JOBS=$((LINES / OFFSET + (LINES % OFFSET != 0)))
+          CHUNKS="[$(seq 0 $((JOBS - 1)) | tr '\n' ',' | sed 's/,$//')]"
+          KEY="${{inputs.opponent}}_${{github.job}}"
+          echo "::notice title=Benchmark against ${{inputs.opponent}}::$LINES FENs"
+          echo "chunks=$CHUNKS" >> $GITHUB_OUTPUT
+          echo "offset=$OFFSET" >> $GITHUB_OUTPUT
+          echo "key=$KEY" >> $GITHUB_OUTPUT
+
+
   benchmark:
     runs-on: ubuntu-latest
-    env:
-      THREADS: ${{ inputs.threads }}
-      OPPONENT: ${{ inputs.opponent }}
-      OPPONENT_LONG: ${{ inputs.opponent_long || inputs.opponent }}
+    needs: prepare
+    strategy:
+      matrix:
+        chunk: ${{ fromJson(needs.prepare.outputs.chunks) }}
     outputs:
       wins: ${{ steps.benchmark.outputs.wins }}
       draws: ${{ steps.benchmark.outputs.draws }}
@@ -31,99 +66,69 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.0.x'
+
     - name: Setup Xvfb
       run: |
         sudo apt-get install -y xvfb
         Xvfb :99 &
         echo "DISPLAY=:99.0" >> $GITHUB_ENV
+
     - name: Prepare
       run: ${{ inputs.run || 'echo "Nothing to prepare"' }}
+
     - name: Run Benchmark
       id: benchmark
       run: |
-        ./scripts/benchmark.sh $THREADS $OPPONENT > >(tee output.log)
+        START_LINE=$(( ${{ matrix.chunk }} * ${{ needs.prepare.outputs.offset }} + 1 ))
+        END_LINE=$(( $START_LINE + ${{ needs.prepare.outputs.offset }} - 1 ))
+        sed -n "${START_LINE},${END_LINE}p" Chess-Challenge/resources/Fens.txt > temp.txt
+        mv temp.txt Chess-Challenge/resources/Fens.txt
+
+        ./scripts/benchmark.sh ${{ inputs.threads }} ${{ inputs.opponent }}> >(tee output.log)
+
         WINS=$(grep -oP 'Benchmark finished: \+\K\d+' output.log)
         DRAWS=$(grep -oP 'Benchmark finished: \+\d+ =\K\d+' output.log)
         LOSSES=$(grep -oP 'Benchmark finished: \+\d+ =\d+ -\K\d+' output.log)
-        echo "wins=$WINS" >> $GITHUB_OUTPUT
-        echo "draws=$DRAWS" >> $GITHUB_OUTPUT
-        echo "losses=$LOSSES" >> $GITHUB_OUTPUT
-        echo "::notice title=Result against $OPPONENT_LONG::$WINS wins, $DRAWS draws, $LOSSES losses"
-    - name: Upload Log
+        echo "+$WINS =$DRAWS -$LOSSES" >> res_${{ matrix.chunk }}.txt
+
+    - name: Upload Results
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ inputs.opponent_long || inputs.opponent }}
-        path: output.log
+        name: res_${{ needs.prepare.outputs.key }}
+        path: res_${{ matrix.chunk }}.txt
 
-  publish:
-    needs: benchmark
-    if: ${{ github.event_name == 'pull_request' }}
+  combine:
     runs-on: ubuntu-latest
+    needs:
+      - benchmark
+      - prepare
+    outputs:
+      wins: ${{ steps.combine.outputs.wins }}
+      draws: ${{ steps.combine.outputs.draws }}
+      losses: ${{ steps.combine.outputs.losses }}
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 2
-    - name: Calculate and export context
-      id: prepare
+    - name: Download results
+      uses: actions/download-artifact@v3
+
+    - name: Combine results
+      id: combine
       run: |
-        LAST_COMMIT_SHA=${{ github.event.pull_request.head.sha }}
-        SHORT_SHA=$(echo $LAST_COMMIT_SHA | cut -c 1-7)
-        echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
-    - name: Comment PR
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const opponent = '${{ inputs.opponent_long || inputs.opponent }}';
-          const wins = '${{ needs.benchmark.outputs.wins }}';
-          const draws = '${{ needs.benchmark.outputs.draws }}';
-          const losses = '${{ needs.benchmark.outputs.losses }}';
-          const shortSha = '${{ steps.prepare.outputs.short_sha }}';
-          const pull_number = ${{ github.event.pull_request.number }};
-
-          const pr = await github.rest.pulls.get({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            pull_number: pull_number
-          });
-
-          const existingDescription = pr.data.body || '';
-          let prDescription = existingDescription;
-          let benchmarkIndexStart = existingDescription.indexOf('<!-- benchmark start -->');
-          let benchmarkIndexEnd = existingDescription.indexOf('<!-- benchmark end -->');
-          let benchmarkSection = '';
-
-          const newLine = `| ${opponent} | ${wins} | ${draws} | ${losses} | ${shortSha} |\n`;
-
-          if (benchmarkIndexStart === -1) {
-            // Benchmark section does not exist. Add it.
-            benchmarkSection = `\n<!-- benchmark start -->\n| Opponent | Wins | Draws | Losses | Commit |\n| --- | --- | --- | --- | --- |\n${newLine}<!-- benchmark end -->\n`;
-            prDescription += benchmarkSection;
-          } else {
-            // Benchmark section exists. Update it.
-            benchmarkSection = existingDescription.slice(benchmarkIndexStart + 23, benchmarkIndexEnd);
-            let opponentIndex = benchmarkSection.indexOf(`| ${opponent} |`);
-
-            if (opponentIndex === -1) {
-              // Opponent row does not exist. Add it.
-              benchmarkSection += newLine;
-            } else {
-              // Opponent row exists. Update it.
-              const opponentIndexEnd = benchmarkSection.indexOf('\n', opponentIndex);
-              benchmarkSection = benchmarkSection.slice(0, opponentIndex) + newLine + benchmarkSection.slice(opponentIndexEnd+1);
-            }
-
-            prDescription = existingDescription.slice(0, benchmarkIndexStart + 23) + benchmarkSection + existingDescription.slice(benchmarkIndexEnd);
-          }
-
-          github.rest.pulls.update({
-            pull_number: pull_number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: prDescription
-          });
+        wins=0
+        draws=0
+        losses=0
+        for file in res_${{ needs.prepare.outputs.key }}/*; do
+          RESULT=$(cat $file)
+          wins=$((wins + $(echo $RESULT | grep -oP '\+\K\d+')))
+          draws=$((draws + $(echo $RESULT | grep -oP '=\K\d+')))
+          losses=$((losses + $(echo $RESULT | grep -oP '\-\K\d+')))
+        done
+        echo "wins=$wins" >> $GITHUB_OUTPUT
+        echo "draws=$draws" >> $GITHUB_OUTPUT
+        echo "losses=$losses" >> $GITHUB_OUTPUT
 
