@@ -92,6 +92,9 @@ jobs:
         END_LINE=$(( $START_LINE + ${{ needs.prepare.outputs.offset }} - 1 ))
         sed -n "${START_LINE},${END_LINE}p" Chess-Challenge/resources/Fens.txt > temp.txt
         mv temp.txt Chess-Challenge/resources/Fens.txt
+        echo "=== benchmark.yaml FENS ==="
+        cat Chess-Challenge/resources/Fens.txt
+        echo "=== benchmark.yaml FENS ==="
 
         ./scripts/benchmark.sh ${{ inputs.threads }} ${{ inputs.opponent }}> >(tee output.log)
 
