@@ -40,8 +40,8 @@ jobs:
         id: prepare
         run: |
           JOBS=${{ inputs.jobs || 1 }}
-          if [ -n '${{ inputs.fens }}' ]; then
-            sed -n '1,${{ inputs.fens }}p' Chess-Challenge/resources/Fens.txt > tmp.txt
+          if [ -n '${{ inputs.fens || '' }}' ]; then
+            sed -n "1,${{ inputs.fens }}p" Chess-Challenge/resources/Fens.txt > tmp.txt
             mv tmp.txt Chess-Challenge/resources/Fens.txt
           fi
           LINES=$(wc -l < Chess-Challenge/resources/Fens.txt)
