@@ -24,7 +24,7 @@ on:
 
 jobs:
   benchmark:
-    uses: ./.github/actions/benchmark.yaml
+    uses: ./.github/workflows/benchmark.yaml
     with:
       opponent: ${{ inputs.opponent }}
       threads: ${{ inputs.threads }}
