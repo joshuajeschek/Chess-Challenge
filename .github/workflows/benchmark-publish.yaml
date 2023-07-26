@@ -42,7 +42,7 @@ jobs:
       LOSSES: ${{ needs.benchmark.outputs.losses }}
       OPPONENT: ${{ inputs.opponent_long || inputs.opponent }}
     steps:
-      - run: echo "Results against $OPPONENT: $WINS wins, $DRAWS draws, $LOSSES losses"
+    - run: echo "Results against $OPPONENT: $WINS wins, $DRAWS draws, $LOSSES losses"
 
 
   publish:
