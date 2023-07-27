@@ -11,7 +11,7 @@ public class MyBot : IChessBot
     private static int WORST_SCORE = -Int32.MaxValue;
     
     /// <summary>the depth to which the bot searches</summary>
-    private static int DEPTH = 5;
+    private static int DEPTH = 4;
     private Move bestMove = Move.NullMove;
     private double alpha = -Int32.MaxValue;
     private double beta = Int32.MaxValue;
