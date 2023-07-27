@@ -16,23 +16,24 @@ concurrency:
 
 jobs:
   evilbot:
+    if: false
     uses: ./.github/workflows/benchmark-publish.yaml
     with:
       opponent: EvilBot
-      threads: 2
-      jobs: 15
+      threads: 1
+      jobs: 20
 
   stockfish:
     uses: ./.github/workflows/benchmark-publish.yaml
     strategy:
       matrix:
-        level: [0, 2, 5]
+        level: [2]
     with:
       opponent: Stockfish
       opponent_long: Stockfish (${{ matrix.level }})
       threads: 1
-      jobs: 8
-      fens: 100
+      jobs: 30
+      fens: 250
       run: |
         cd Chess-Challenge
         wget -nv https://github.com/official-stockfish/Stockfish/releases/download/sf_16/stockfish-ubuntu-x86-64-avx2.tar
