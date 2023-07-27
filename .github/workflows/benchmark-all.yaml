@@ -20,7 +20,7 @@ jobs:
     with:
       opponent: EvilBot
       threads: 2
-      jobs: 20
+      jobs: 15
 
   stockfish:
     uses: ./.github/workflows/benchmark-publish.yaml
@@ -30,8 +30,8 @@ jobs:
     with:
       opponent: Stockfish
       opponent_long: Stockfish (${{ matrix.level }})
-      threads: 2
-      jobs: 5
+      threads: 1
+      jobs: 8
       fens: 100
       run: |
         cd Chess-Challenge
