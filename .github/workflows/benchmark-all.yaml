@@ -48,11 +48,11 @@ jobs:
 
     outputs:
       opponent: ${{ steps.output.outputs.opponent }}
-      fens: ${{ steps.output.outputs.fens }}
-      jobs: ${{ steps.output.outputs.jobs }}
+      fens: ${{ steps.output.outputs.fens || 69 }}
+      jobs: ${{ steps.output.outputs.jobs  || 69 }}
       env: ${{ steps.output.outputs.env }}
       opponent_long: ${{ steps.output.outputs.opponent_long }}
-      remote_opponent: ${{ steps.output.outputs.remote_opponent }}
+      remote_opponent: ${{ steps.output.outputs.remote_opponent || false}}
 
     steps:
 
