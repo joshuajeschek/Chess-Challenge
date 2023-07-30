@@ -110,13 +110,14 @@ jobs:
           echo "remote_opponent=$REMOTE_OPPONENT" >> GITHUB_OUTPUT
 
       - name: Notice
+        env:
+          OPPONENT: ${{ steps.out.outputs.opponent }}
+          OPPONENT_LONG: ${{ steps.out.outputs.opponent_long }}
+          FENS: ${{ steps.out.outputs.fens }}
+          JOBS: ${{ steps.out.outputs.jobs }}
+          ENV: ${{ steps.out.outputs.env }}
+          REMOTE_OPPONENT: ${{ steps.out.outputs.remote_opponent }}
         run: |
-          OPPONENT=${{ steps.out.outputs.opponent }}
-          OPPONENT_LONG=${{ steps.out.outputs.opponent_long }}
-          FENS=${{ steps.out.outputs.fens }}
-          JOBS=${{ steps.out.outputs.jobs }}
-          ENV=${{ steps.out.outputs.env }}
-          REMOTE_OPPONENT=${{ steps.out.outputs.remote_opponent }}
           echo "::notice::opponent=$OPPONENT, opponent_long=$OPPONENT_LONG, fens=$FENS, jobs=$JOBS, env=$ENV, remote_opponent=$REMOTE_OPPONENT"
 
 
