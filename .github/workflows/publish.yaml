@@ -99,7 +99,7 @@ jobs:
                 benchmarkSection = benchmarkSection.slice(0, opponentIndex) + newLine + benchmarkSection.slice(opponentIndexEnd+1);
               }
 
-              newContent = existingContent.slice(0, benchmarkIndexStart + 23) + benchmarkSection + existingDescription.slice(benchmarkIndexEnd);
+              newContent = existingContent.slice(0, benchmarkIndexStart + 23) + benchmarkSection + existingContent.slice(benchmarkIndexEnd);
             }
 
             if (pull_number) {

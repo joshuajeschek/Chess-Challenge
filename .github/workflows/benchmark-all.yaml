@@ -115,9 +115,9 @@ jobs:
           REMOTE_OPPONENT=$(wget -q $OPPONENT && echo true || echo false)
 
           RUN="true"
-          ENV_VARS=$(echo $ENV | tr ";" "\n")
+          ENV_VARS=$(echo $ENV | tr ":" "\n")
           for ENV_VAR in $ENV_VARS; do
-            RUN="&& echo \"$ENV_VAR\" >> \$GITHUB_ENV"
+            RUN="$RUN && echo \"$ENV_VAR\" >> \$GITHUB_ENV"
           done
 
           echo "opponent=$OPPONENT" >> $GITHUB_OUTPUT
