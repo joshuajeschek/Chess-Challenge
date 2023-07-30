@@ -4,7 +4,6 @@ env:
   DEFAULT_OPPONENT: EvilBot
   DEFAULT_JOBS: 20
   DEFAULT_FENS: 100
-  DEFAULT_ENV: STOCKFISH_LEVEL=0
 
 on:
   push:
@@ -93,9 +92,6 @@ jobs:
           if [[ -z "$JOBS" ]]; then
             export JOBS=${{ env.DEFAULT_JOBS }}
           fi
-          if [[ -z "$ENV" ]]; then
-            export ENV=${{ env.DEFAULT_ENV }}
-          fi
 
       - name: Output
         id: output
@@ -112,11 +108,13 @@ jobs:
           if [[ $OPPONENT = Stockfish_* ]]; then
             LEVEL=$(echo $OPPONENT | grep -oP 'Stockfish_\K\d+' || echo 0)
             ENV="$ENV:STOCKFISH_LEVEL=$LEVEL"
+
             OPPONENT_LONG="Stockfish ($LEVEL)"
-          else if [[ $OPPONENT = Stockfish ]]; then
+          elif [[ $OPPONENT = Stockfish ]]; then
             ENV="$ENV:STOCKFISH_LEVEL=0"
             OPPONENT_LONG="Stockfish (0)"
           fi
+
           echo "opponent_long=$OPPONENT_LONG"
           echo "opponent_long=$OPPONENT_LONG" >> GITHUB_OUTPUT
           echo "env=$ENV"
