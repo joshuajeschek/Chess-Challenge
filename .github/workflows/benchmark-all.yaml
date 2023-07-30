@@ -51,7 +51,7 @@ jobs:
       opponent: ${{ steps.out.outputs.opponent }}
       fens: ${{ steps.out.outputs.fens }}
       jobs: ${{ steps.out.outputs.jobs }}
-      env: ${{ steps.out.outputs.env }}
+      run: ${{ steps.out.outputs.run }}
       opponent_long: ${{ steps.out.outputs.opponent_long }}
       remote_opponent: ${{ steps.out.outputs.remote_opponent }}
 
@@ -100,7 +100,7 @@ jobs:
           OPPONENT: ${{ steps.prepare_dispatch.outputs.opponent || steps.prepare_push.outputs.opponent || env.DEFAULT_OPPONENT }}
           FENS: ${{ steps.prepare_dispatch.outputs.fens || steps.prepare_push.outputs.fens || env.DEFAULT_FENS }}
           JOBS: ${{ steps.prepare_dispatch.outputs.jobs || steps.prepare_push.outputs.jobs || env.DEFAULT_JOBS }}
-          ENV: ${{ steps.prepare_dispatch.outputs.env || steps.prepare_push.outputs.env || '""' }}
+          ENV: ${{ steps.prepare_dispatch.outputs.env || steps.prepare_push.outputs.env || '' }}
         run: |
           OPPONENT_LONG=$OPPONENT
           if [[ $OPPONENT = Stockfish_* ]]; then
@@ -115,11 +115,17 @@ jobs:
 
           REMOTE_OPPONENT=$(wget -q $OPPONENT && echo true || echo false)
 
+          RUN="true"
+          ENV_VARS=$(echo $ENV | tr ";" "\n")
+          for ENV_VAR in $ENV_VARS; do
+            RUN="&& echo \"$ENV_VAR\"" >> \$GITHUB_ENV"
+          done
+
           echo "opponent=$OPPONENT" >> $GITHUB_OUTPUT
           echo "opponent_long=$OPPONENT_LONG" >> $GITHUB_OUTPUT
           echo "fens=$FENS" >> $GITHUB_OUTPUT
           echo "jobs=$JOBS" >> $GITHUB_OUTPUT
-          echo "env=$ENV" >> $GITHUB_OUTPUT
+          echo "run=$RUN" >> $GITHUB_OUTPUT
           echo "remote_opponent=$REMOTE_OPPONENT" >> $GITHUB_OUTPUT
 
       - name: Notice
@@ -128,9 +134,9 @@ jobs:
           OPPONENT_LONG: ${{ steps.out.outputs.opponent_long }}
           FENS: ${{ steps.out.outputs.fens }}
           JOBS: ${{ steps.out.outputs.jobs }}
-          ENV: ${{ steps.out.outputs.env }}
+          RUN: ${{ steps.out.outputs.run }}
           REMOTE_OPPONENT: ${{ steps.out.outputs.remote_opponent }}
-        run: echo "::notice::opponent=$OPPONENT, opponent_long=$OPPONENT_LONG, fens=$FENS, jobs=$JOBS, env=$ENV, remote_opponent=$REMOTE_OPPONENT"
+        run: echo "::notice::opponent=$OPPONENT, opponent_long=$OPPONENT_LONG, fens=$FENS, jobs=$JOBS, run=$RUN, remote_opponent=$REMOTE_OPPONENT"
 
 
 
@@ -144,7 +150,7 @@ jobs:
       opponent_long: ${{ needs.prepare.outputs.opponent_long }}
       jobs: ${{ fromJSON(needs.prepare.outputs.jobs) }}
       fens: ${{ fromJSON(needs.prepare.outputs.fens) }}
-      run: 'echo "${{ needs.prepare.outputs.env }}" >> $GITHUB_ENV'
+      run: ${{ needs.prepare.outputs.run }}
       remote_opponent: ${{ fromJSON(needs.prepare.outputs.remote_opponent) }}
 
   publish:
