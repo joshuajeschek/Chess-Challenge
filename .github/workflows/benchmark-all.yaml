@@ -22,19 +22,19 @@ on:
       opponent:
         description: 'Opponent'
         required: true
-        default: ${{ env.DEFAULT_OPPONENT }}
+        default: EvilBot
       jobs:
         description: 'Jobs'
         required: true
-        default: ${{ env.DEFAULT_JOBS }}
+        default: 20
       fens:
         description: 'Fens'
         required: true
-        default: ${{ env.DEFAULT_FENS }}
+        default: 100
       env:
         description: 'Environment variables to set'
         required: false
-        default: ${{ env.DEFAULT_ENV }}
+        default: STOCKFISH_LEVEL=0
 
 permissions:
   pull-requests: write
