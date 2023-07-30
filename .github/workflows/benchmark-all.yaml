@@ -84,7 +84,7 @@ jobs:
       jobs: ${{ fromJSON(needs.prepare.outputs.jobs) }}
       fens: ${{ fromJSON(needs.prepare.outputs.fens) }}
       run: echo "${{ needs.prepare.outputs.env }}" >> $GITHUB_ENV
-      remote_opponent: ${{ needs.prepare.outputs.remote_opponent }}
+      remote_opponent: ${{ fromJSON(needs.prepare.outputs.remote_opponent) }}
 
   publish:
     needs:
