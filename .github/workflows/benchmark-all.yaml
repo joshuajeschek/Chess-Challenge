@@ -83,7 +83,9 @@ jobs:
       run: echo "${{ needs.prepare.outputs.env }}" >> $GITHUB_ENV
 
   publish:
-    needs: benchmark
+    needs:
+      - prepare
+      - benchmark
     uses: ./.github/workflows/publish.yaml
     with:
       opponent: ${{ needs.prepare.outputs.opponent_long }}
