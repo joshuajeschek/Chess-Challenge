@@ -2,8 +2,8 @@ name: Benchmark Bot
 
 env:
   DEFAULT_OPPONENT: EvilBot
-  DEFAULT_JOBS: 20
-  DEFAULT_FENS: 100
+  DEFAULT_JOBS: 22
+  DEFAULT_FENS: 2
 
 on:
   push:
@@ -25,11 +25,11 @@ on:
       jobs:
         description: 'Jobs'
         required: true
-        default: 20
+        default: 2
       fens:
         description: 'Fens'
         required: true
-        default: 100
+        default: 2
       env:
         description: 'Environment variables to set'
         required: false
@@ -53,7 +53,6 @@ jobs:
       env: ${{ steps.output.outputs.env }}
       opponent_long: ${{ steps.output.outputs.opponent_long }}
       remote_opponent: ${{ steps.output.outputs.remote_opponent }}
-      benchmark: ${{ fromJSON(steps.output.outputs.benchmark) || false }}
 
     steps:
 
@@ -98,7 +97,6 @@ jobs:
       - name: Output
         id: output
         run: |
-          echo "benchmark=true" >> GITHUB_OUTPUT
           OPPONENT=${{ steps.prepare_dispatch.outputs.opponent || steps.prepare_push.outputs.opponent || env.DEFAULT_OPPONENT }}
           echo "opponent=$OPPONENT" >> GITHUB_OUTPUT
           echo "fens=${{ steps.prepare_dispatch.outputs.fens || steps.prepare_push.outputs.fens || env.DEFAULT_FENS }}" >> GITHUB_OUTPUT
@@ -128,7 +126,6 @@ jobs:
 
   benchmark:
     needs: prepare
-    if: fromJSON(needs.prepare.outputs.benchmark)
     uses: ./.github/workflows/benchmark.yaml
     with:
       opponent: ${{ needs.prepare.outputs.opponent }}
