@@ -76,13 +76,13 @@ jobs:
         if: github.event_name == 'pull_request' || github.event_name == 'push'
         id: prepare_push
         run: |
-          git log | cat
-          commit_message=$(git log @~ --pretty=%B)
-          echo $commit_message
-          echo "opponent=$(echo $commit_message | grep -oP 'opponent::\K\w+')" >> $GITHUB_OUTPUT
-          echo "fens=$(echo $commit_message | grep -oP 'fens::\K\d+')" >> $GITHUB_OUTPUT
-          echo "jobs=$(echo $commit_message | grep -oP 'jobs::\K\d+')" >> $GITHUB_OUTPUT
-          echo "env=$(echo $commit_message | grep -oP 'env::\K\S+')" >> $GITHUB_OUTPUT
+          LAST_COMMIT_SHA=${{ github.event.pull_request.head.sha || github.event.head_commit.sha }}
+          COMMIT_MESSAGE=$(git log $LAST_COMMIT_SHA -1 --pretty=%B)
+          echo $COMMIT_MESSAGE
+          echo "opponent=$(echo $COMMIT_MESSAGE | grep -oP 'opponent::\K\w+')" >> $GITHUB_OUTPUT
+          echo "fens=$(echo $COMMIT_MESSAGE | grep -oP 'fens::\K\d+')" >> $GITHUB_OUTPUT
+          echo "jobs=$(echo $COMMIT_MESSAGE | grep -oP 'jobs::\K\d+')" >> $GITHUB_OUTPUT
+          echo "env=$(echo $COMMIT_MESSAGE | grep -oP 'env::\K\S+')" >> $GITHUB_OUTPUT
 
       - name: Prepare (Comment)
         if: github.event_name == 'issue_comment'
