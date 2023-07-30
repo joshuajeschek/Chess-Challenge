@@ -77,9 +77,10 @@ public class MyBot : IChessBot
 
         double bestScore = WORST_SCORE;
         Move[] moves = board.GetLegalMoves();
+        Move[] orderedMoves = MoveOrderingHeuristics(moves);
         if (depth == DEPTH)
             bestMove = moves[0];
-        foreach (Move move in moves)
+        foreach (Move move in orderedMoves)
         {
             if (timer.MillisecondsElapsedThisTurn > timeForMove)
             {
