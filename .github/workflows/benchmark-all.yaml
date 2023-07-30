@@ -105,11 +105,12 @@ jobs:
           if [[ $OPPONENT = Stockfish_* ]]; then
             LEVEL=$(echo $OPPONENT | grep -oP 'Stockfish_\K\d+' || echo 0)
             ENV="$ENV:STOCKFISH_LEVEL=$LEVEL"
-
             OPPONENT_LONG="Stockfish ($LEVEL)"
+            OPPONENT="Stockfish"
           elif [[ $OPPONENT = Stockfish ]]; then
             ENV="$ENV:STOCKFISH_LEVEL=0"
             OPPONENT_LONG="Stockfish (0)"
+            OPPONENT="Stockfish"
           fi
 
           REMOTE_OPPONENT=$(wget -q $OPPONENT && echo true || echo false)
