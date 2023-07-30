@@ -102,12 +102,12 @@ jobs:
 
           REMOTE_OPPONENT=$(wget -q $OPPONENT && echo true || echo false)
 
-          echo "opponent=$OPPONENT" >> GITHUB_OUTPUT
-          echo "opponent_long=$OPPONENT_LONG" >> GITHUB_OUTPUT
-          echo "fens=$FENS" >> GITHUB_OUTPUT
-          echo "jobs=$JOBS" >> GITHUB_OUTPUT
-          echo "env=$ENV" >> GITHUB_OUTPUT
-          echo "remote_opponent=$REMOTE_OPPONENT" >> GITHUB_OUTPUT
+          echo "::set-output name=opponent::$OPPONENT"
+          echo "::set-output name=opponent_long::$OPPONENT_LONG"
+          echo "::set-output name=fens::$FENS"
+          echo "::set-output name=jobs::$JOBS"
+          echo "::set-output name=env::$ENV"
+          echo "::set-output name=remote_opponent::$REMOTE_OPPONENT"
 
       - name: Notice
         env:
