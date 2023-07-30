@@ -60,10 +60,10 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         id: prepare_dispatch
         run: |
-          echo "opponent=${{ github.event.inputs.opponent }}" >> GITHUB_OUTPUT
-          echo "fens=${{ github.event.inputs.fens }}" >> GITHUB_OUTPUT
-          echo "jobs=${{ github.event.inputs.jobs }}" >> GITHUB_OUTPUT
-          echo "env=${{ github.event.inputs.env }}" >> GITHUB_OUTPUT
+          echo "opponent=${{ github.event.inputs.opponent }}" >> $GITHUB_OUTPUT
+          echo "fens=${{ github.event.inputs.fens }}" >> $GITHUB_OUTPUT
+          echo "jobs=${{ github.event.inputs.jobs }}" >> $GITHUB_OUTPUT
+          echo "env=${{ github.event.inputs.env }}" >> $GITHUB_OUTPUT
 
       - name: Checkout code
         if: github.event_name == 'pull_request' || github.event_name == 'push'
@@ -76,10 +76,10 @@ jobs:
         id: prepare_push
         run: |
           commit_message=$(git log -1 --pretty=%B)
-          echo "opponent=$(echo commit_message | grep -oP 'opponent::\K\w+')" >> GITHUB_OUTPUT
-          echo "fens=$(echo commit_message | grep -oP 'fens::\K\d+')" >> GITHUB_OUTPUT
-          echo "jobs=$(echo commit_message | grep -oP 'jobs::\K\d+')" >> GITHUB_OUTPUT
-          echo "env=$(echo commit_message | grep -oP 'env::\K\S+')" >> GITHUB_OUTPUT
+          echo "opponent=$(echo commit_message | grep -oP 'opponent::\K\w+')" >> $GITHUB_OUTPUT
+          echo "fens=$(echo commit_message | grep -oP 'fens::\K\d+')" >> $GITHUB_OUTPUT
+          echo "jobs=$(echo commit_message | grep -oP 'jobs::\K\d+')" >> $GITHUB_OUTPUT
+          echo "env=$(echo commit_message | grep -oP 'env::\K\S+')" >> $GITHUB_OUTPUT
 
       - name: Output
         id: out
@@ -102,12 +102,12 @@ jobs:
 
           REMOTE_OPPONENT=$(wget -q $OPPONENT && echo true || echo false)
 
-          echo "::set-output name=opponent::$OPPONENT"
-          echo "::set-output name=opponent_long::$OPPONENT_LONG"
-          echo "::set-output name=fens::$FENS"
-          echo "::set-output name=jobs::$JOBS"
-          echo "::set-output name=env::$ENV"
-          echo "::set-output name=remote_opponent::$REMOTE_OPPONENT"
+          echo "opponent=$OPPONENT" >> $GITHUB_OUTPUT
+          echo "opponent_long=$OPPONENT_LONG" >> $GITHUB_OUTPUT
+          echo "fens=$FENS" >> $GITHUB_OUTPUT
+          echo "jobs=$JOBS" >> $GITHUB_OUTPUT
+          echo "env=$ENV" >> $GITHUB_OUTPUT
+          echo "remote_opponent=$REMOTE_OPPONENT" >> $GITHUB_OUTPUT
 
       - name: Notice
         env:
@@ -117,8 +117,7 @@ jobs:
           JOBS: ${{ steps.out.outputs.jobs }}
           ENV: ${{ steps.out.outputs.env }}
           REMOTE_OPPONENT: ${{ steps.out.outputs.remote_opponent }}
-        run: |
-          echo "::notice::opponent=$OPPONENT, opponent_long=$OPPONENT_LONG, fens=$FENS, jobs=$JOBS, env=$ENV, remote_opponent=$REMOTE_OPPONENT"
+        run: echo "::notice::opponent=$OPPONENT, opponent_long=$OPPONENT_LONG, fens=$FENS, jobs=$JOBS, env=$ENV, remote_opponent=$REMOTE_OPPONENT"
 
 
 
