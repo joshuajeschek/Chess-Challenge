@@ -55,8 +55,8 @@ jobs:
             const draws = '${{ inputs.draws }}';
             const losses = '${{ inputs.losses }}';
             const shortSha = '${{ steps.prepare.outputs.short_sha }}';
-            const pull_number = ${{ github.event.pull_request.number }};
-            const comment_number = ${{ github.event.comment.number }};
+            const pull_number = ${{ github.event.pull_request.number || 'null' }};
+            const comment_number = ${{ github.event.comment.number || 'null' }};
 
             let origin = null;
             if (pull_number) {

@@ -45,7 +45,7 @@ jobs:
 
   prepare:
     runs-on: ubuntu-latest
-    if: github_event.name != 'issue_comment' || contains(github.event.comment.body, '/benchmark')
+    if: github.event_name != 'issue_comment' || contains(github.event.comment.body, '/benchmark')
 
     outputs:
       opponent: ${{ steps.out.outputs.opponent }}
@@ -77,6 +77,7 @@ jobs:
         id: prepare_push
         run: |
           commit_message=$(git log -1 --pretty=%B)
+          echo $commit_message
           echo "opponent=$(echo $commit_message | grep -oP 'opponent::\K\w+')" >> $GITHUB_OUTPUT
           echo "fens=$(echo $commit_message | grep -oP 'fens::\K\d+')" >> $GITHUB_OUTPUT
           echo "jobs=$(echo $commit_message | grep -oP 'jobs::\K\d+')" >> $GITHUB_OUTPUT
