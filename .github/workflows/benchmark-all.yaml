@@ -54,6 +54,7 @@ jobs:
       jobs: ${{ steps.prepare_dispatch.outputs.jobs || env.DEFAULT_JOBS }}
       env: ${{ steps.prepare_dispatch.outputs.env || env.DEFAULT_ENV }}
       opponent_long: ${{ steps.prepare_dispatch.outputs.opponent_long || env.DEFAULT_OPPONENT }}
+      remote_opponent: ${{ steps.prepare_dispatch.outputs.remote_opponent || false }}
 
     steps:
 
@@ -71,6 +72,8 @@ jobs:
             opponent_long="EvilBot ($level)"
           fi
           echo "opponent_long=$opponent_long" >> $GITHUB_OUTPUT
+          echo "remote_opponent=$(wget -n ${{ github.event.inputs.opponent }} -O /dev/null 2>&1 && echo true || echo false)" >> $GITHUB_OUTPUT
+
 
   benchmark:
     needs: prepare
@@ -81,6 +84,7 @@ jobs:
       jobs: ${{ fromJSON(needs.prepare.outputs.jobs) }}
       fens: ${{ fromJSON(needs.prepare.outputs.fens) }}
       run: echo "${{ needs.prepare.outputs.env }}" >> $GITHUB_ENV
+      remote_opponent: ${{ needs.prepare.outputs.remote_opponent }}
 
   publish:
     needs:
