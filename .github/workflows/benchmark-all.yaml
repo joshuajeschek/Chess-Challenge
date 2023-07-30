@@ -48,12 +48,12 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      opponent: ${{ steps.output.outputs.opponent || env.DEFAULT_OPPONENT }}
-      fens: ${{ steps.output.outputs.fens || env.DEFAULT_FENS }}
-      jobs: ${{ steps.output.outputs.jobs || env.DEFAULT_JOBS }}
-      env: ${{ steps.output.outputs.env || env.DEFAULT_ENV }}
-      opponent_long: ${{ steps.output.outputs.opponent_long || env.DEFAULT_OPPONENT }}
-      remote_opponent: ${{ steps.output.outputs.remote_opponent || false }}
+      opponent: ${{ steps.output.outputs.opponent }}
+      fens: ${{ steps.output.outputs.fens }}
+      jobs: ${{ steps.output.outputs.jobs }}
+      env: ${{ steps.output.outputs.env }}
+      opponent_long: ${{ steps.output.outputs.opponent_long }}
+      remote_opponent: ${{ steps.output.outputs.remote_opponent }}
       benchmark: ${{ steps.output.outputs.benchmark || false }}
 
     steps:
@@ -82,6 +82,21 @@ jobs:
           export JOBS=$(echo commit_message | grep -oP 'jobs::\K\d+')
           export ENV=$(echo commit_message | grep -oP 'env::\K\S+')
 
+      - name: Set defaults
+        run: |
+          if [[ -z "$OPPONENT" ]]; then
+            export OPPONENT=${{ env.DEFAULT_OPPONENT }}
+          fi
+          if [[ -z "$FENS" ]]; then
+            export FENS=${{ env.DEFAULT_FENS }}
+          fi
+          if [[ -z "$JOBS" ]]; then
+            export JOBS=${{ env.DEFAULT_JOBS }}
+          fi
+          if [[ -z "$ENV" ]]; then
+            export ENV=${{ env.DEFAULT_ENV }}
+          fi
+
       - name: Output
         id: output
         run: |
@@ -95,10 +110,10 @@ jobs:
 
           OPPONENT_LONG=$OPPONENT
           if [[ $OPPONENT = Stockfish_* ]]; then
-            LEVEL=$(echo $opponent | grep -oP 'Stockfish_\K\d+' || echo 0)
+            LEVEL=$(echo $OPPONENT | grep -oP 'Stockfish_\K\d+' || echo 0)
             ENV="$ENV:STOCKFISH_LEVEL=$LEVEL"
             OPPONENT_LONG="Stockfish ($LEVEL)"
-          else if [[ $opponent = Stockfish ]]; then
+          else if [[ $OPPONENT = Stockfish ]]; then
             ENV="$ENV:STOCKFISH_LEVEL=0"
             OPPONENT_LONG="Stockfish (0)"
           fi
