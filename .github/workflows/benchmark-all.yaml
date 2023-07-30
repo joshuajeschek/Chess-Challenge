@@ -47,12 +47,12 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      opponent: ${{ steps.output.outputs.opponent }}
-      fens: ${{ steps.output.outputs.fens }}
-      jobs: ${{ steps.output.outputs.jobs }}
-      env: ${{ steps.output.outputs.env }}
-      opponent_long: ${{ steps.output.outputs.opponent_long }}
-      remote_opponent: ${{ steps.output.outputs.remote_opponent }}
+      opponent: ${{ steps.out.outputs.opponent }}
+      fens: ${{ steps.out.outputs.fens }}
+      jobs: ${{ steps.out.outputs.jobs }}
+      env: ${{ steps.out.outputs.env }}
+      opponent_long: ${{ steps.out.outputs.opponent_long }}
+      remote_opponent: ${{ steps.out.outputs.remote_opponent }}
 
     steps:
 
@@ -82,7 +82,7 @@ jobs:
           echo "env=$(echo commit_message | grep -oP 'env::\K\S+')" >> GITHUB_OUTPUT
 
       - name: Output
-        id: output
+        id: out
         env:
           OPPONENT: ${{ steps.prepare_dispatch.outputs.opponent || steps.prepare_push.outputs.opponent || env.DEFAULT_OPPONENT }}
           FENS: ${{ steps.prepare_dispatch.outputs.fens || steps.prepare_push.outputs.fens || env.DEFAULT_FENS }}
@@ -111,12 +111,12 @@ jobs:
 
       - name: Notice
         run: |
-          OPPONENT=${{ steps.output.outputs.opponent }}
-          OPPONENT_LONG=${{ steps.output.outputs.opponent_long }}
-          FENS=${{ steps.output.outputs.fens }}
-          JOBS=${{ steps.output.outputs.jobs }}
-          ENV=${{ steps.output.outputs.env }}
-          REMOTE_OPPONENT=${{ steps.output.outputs.remote_opponent }}
+          OPPONENT=${{ steps.out.outputs.opponent }}
+          OPPONENT_LONG=${{ steps.out.outputs.opponent_long }}
+          FENS=${{ steps.out.outputs.fens }}
+          JOBS=${{ steps.out.outputs.jobs }}
+          ENV=${{ steps.out.outputs.env }}
+          REMOTE_OPPONENT=${{ steps.out.outputs.remote_opponent }}
           echo "::notice::opponent=$OPPONENT, opponent_long=$OPPONENT_LONG, fens=$FENS, jobs=$JOBS, env=$ENV, remote_opponent=$REMOTE_OPPONENT"
 
 
