@@ -48,11 +48,11 @@ jobs:
 
     outputs:
       opponent: ${{ steps.output.outputs.opponent }}
-      fens: ${{ steps.output.outputs.fens || 69 }}
-      jobs: ${{ steps.output.outputs.jobs  || 69 }}
+      fens: ${{ steps.output.outputs.fens }}
+      jobs: ${{ steps.output.outputs.jobs }}
       env: ${{ steps.output.outputs.env }}
       opponent_long: ${{ steps.output.outputs.opponent_long }}
-      remote_opponent: ${{ steps.output.outputs.remote_opponent || false}}
+      remote_opponent: ${{ steps.output.outputs.remote_opponent }}
 
     steps:
 
@@ -75,24 +75,11 @@ jobs:
         if: github.event_name == 'pull_request' || github.event_name == 'push'
         id: prepare_push
         run: |
-          # get last commit message
           commit_message=$(git log -1 --pretty=%B)
           echo "OPPONENT=$(echo commit_message | grep -oP 'opponent::\K\w+')" >> GITHUB_OUTPUT
           echo "FENS=$(echo commit_message | grep -oP 'fens::\K\d+')" >> GITHUB_OUTPUT
           echo "JOBS=$(echo commit_message | grep -oP 'jobs::\K\d+')" >> GITHUB_OUTPUT
           echo "ENV=$(echo commit_message | grep -oP 'env::\K\S+')" >> GITHUB_OUTPUT
-
-      # - name: Set defaults
-      #   run: |
-      #     if [[ -z "$OPPONENT" ]]; then
-      #       export OPPONENT=${{ env.DEFAULT_OPPONENT }}
-      #     fi
-      #     if [[ -z "$FENS" ]]; then
-      #       export FENS=${{ env.DEFAULT_FENS }}
-      #     fi
-      #     if [[ -z "$JOBS" ]]; then
-      #       export JOBS=${{ env.DEFAULT_JOBS }}
-      #     fi
 
       - name: Output
         id: output
@@ -147,29 +134,3 @@ jobs:
       wins: ${{ fromJSON(needs.benchmark.outputs.wins) }}
       draws: ${{ fromJSON(needs.benchmark.outputs.draws) }}
       losses: ${{ fromJSON(needs.benchmark.outputs.losses) }}
-
-  # stockfish:
-  #   uses: ./.github/workflows/benchmark-publish.yaml
-  #   strategy:
-  #     matrix:
-  #       level: [2]
-  #   with:
-  #     opponent: Stockfish
-  #     opponent_long: Stockfish (${{ matrix.level }})
-  #     threads: 1
-  #     jobs: 40
-  #     fens: 100
-  #     run: |
-  #       cd Chess-Challenge
-  #       wget -nv https://github.com/official-stockfish/Stockfish/releases/download/sf_16/stockfish-ubuntu-x86-64-avx2.tar
-  #       tar -xf stockfish-ubuntu-x86-64-avx2.tar
-  #       echo "STOCKFISH_BIN=stockfish/stockfish-ubuntu-x86-64-avx2" >> $GITHUB_ENV
-  #       echo "STOCKFISH_LEVEL=${{ matrix.level }}" >> $GITHUB_ENV
-  #
-  # comparebot:
-  #   if: false
-  #   uses: ./.github/workflows/benchmark-publish.yaml
-  #   with:
-  #     opponent: CompareBot
-  #     threads: 1
-  #     jobs: 20
