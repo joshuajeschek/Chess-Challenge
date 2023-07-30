@@ -83,15 +83,12 @@ jobs:
 
       - name: Output
         id: output
+        env:
+          OPPONENT: ${{ steps.prepare_dispatch.outputs.opponent || steps.prepare_push.outputs.opponent || env.DEFAULT_OPPONENT }}
+          FENS: ${{ steps.prepare_dispatch.outputs.fens || steps.prepare_push.outputs.fens || env.DEFAULT_FENS }}
+          JOBS: ${{ steps.prepare_dispatch.outputs.jobs || steps.prepare_push.outputs.jobs || env.DEFAULT_JOBS }}
+          ENV: ${{ steps.prepare_dispatch.outputs.env || steps.prepare_push.outputs.env || '""' }}
         run: |
-          OPPONENT=${{ steps.prepare_dispatch.outputs.opponent || steps.prepare_push.outputs.opponent || env.DEFAULT_OPPONENT }}
-          echo "opponent=$OPPONENT" >> GITHUB_OUTPUT
-          echo "fens=${{ steps.prepare_dispatch.outputs.fens || steps.prepare_push.outputs.fens || env.DEFAULT_FENS }}"
-          echo "fens=${{ steps.prepare_dispatch.outputs.fens || steps.prepare_push.outputs.fens || env.DEFAULT_FENS }}" >> GITHUB_OUTPUT
-          echo "jobs=${{ steps.prepare_dispatch.outputs.jobs || steps.prepare_push.outputs.jobs || env.DEFAULT_JOBS }}"
-          echo "jobs=${{ steps.prepare_dispatch.outputs.jobs || steps.prepare_push.outputs.jobs || env.DEFAULT_JOBS }}" >> GITHUB_OUTPUT
-          ENV=${{ steps.prepare_dispatch.outputs.env || steps.prepare_push.outputs.env || '""' }}
-
           OPPONENT_LONG=$OPPONENT
           if [[ $OPPONENT = Stockfish_* ]]; then
             LEVEL=$(echo $OPPONENT | grep -oP 'Stockfish_\K\d+' || echo 0)
@@ -103,11 +100,13 @@ jobs:
             OPPONENT_LONG="Stockfish (0)"
           fi
 
-          echo "opponent_long=$OPPONENT_LONG" >> GITHUB_OUTPUT
-          echo "env=$ENV" >> GITHUB_OUTPUT
-
           REMOTE_OPPONENT=$(wget -q $OPPONENT && echo true || echo false)
-          echo "remote_opponent=$REMOTE_OPPONENT"
+
+          echo "opponent=$OPPONENT" >> GITHUB_OUTPUT
+          echo "opponent_long=$OPPONENT_LONG" >> GITHUB_OUTPUT
+          echo "fens=$FENS" >> GITHUB_OUTPUT
+          echo "jobs=$JOBS" >> GITHUB_OUTPUT
+          echo "env=$ENV" >> GITHUB_OUTPUT
           echo "remote_opponent=$REMOTE_OPPONENT" >> GITHUB_OUTPUT
 
 
