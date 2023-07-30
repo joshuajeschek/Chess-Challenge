@@ -108,7 +108,17 @@ jobs:
           echo "jobs=$JOBS" >> GITHUB_OUTPUT
           echo "env=$ENV" >> GITHUB_OUTPUT
           echo "remote_opponent=$REMOTE_OPPONENT" >> GITHUB_OUTPUT
-          echo "::notice title=Benchmark against $OPPONENT_LONG::opponent=$OPPONENT, fens=$FENS, jobs=$JOBS, env=$ENV, remote_opponent=$REMOTE_OPPONENT"
+
+      - name: Notice
+        run: |
+          OPPONENT=${{ steps.output.outputs.opponent }}
+          OPPONENT_LONG=${{ steps.output.outputs.opponent_long }}
+          FENS=${{ steps.output.outputs.fens }}
+          JOBS=${{ steps.output.outputs.jobs }}
+          ENV=${{ steps.output.outputs.env }}
+          REMOTE_OPPONENT=${{ steps.output.outputs.remote_opponent }}
+          echo "::notice::opponent=$OPPONENT, opponent_long=$OPPONENT_LONG, fens=$FENS, jobs=$JOBS, env=$ENV, remote_opponent=$REMOTE_OPPONENT"
+
 
 
 
