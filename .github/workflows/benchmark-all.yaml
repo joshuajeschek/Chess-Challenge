@@ -1,11 +1,40 @@
-name: Benchmark All
+name: Benchmark Bot
+
+env:
+  DEFAULT_OPPONENT: EvilBot
+  DEFAULT_JOBS: 20
+  DEFAULT_FENS: 100
+  DEFAULT_ENV: STOCKFISH_LEVEL=0
 
 on:
   push:
     branches:
       - main
+
   pull_request:
     types: [opened, synchronize, reopened]
+
+  issue_comment:
+    types: [created]
+
+  workflow_dispatch:
+    inputs:
+      opponent:
+        description: 'Opponent'
+        required: true
+        default: ${{ env.DEFAULT_OPPONENT }}
+      jobs:
+        description: 'Jobs'
+        required: true
+        default: ${{ env.DEFAULT_JOBS }}
+      fens:
+        description: 'Fens'
+        required: true
+        default: ${{ env.DEFAULT_FENS }}
+      env:
+        description: 'Environment variables to set'
+        required: false
+        default: ${{ env.DEFAULT_ENV }}
 
 permissions:
   pull-requests: write
@@ -15,36 +44,74 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  evilbot:
-    if: false
-    uses: ./.github/workflows/benchmark-publish.yaml
-    with:
-      opponent: EvilBot
-      threads: 1
-      jobs: 40
 
-  stockfish:
-    uses: ./.github/workflows/benchmark-publish.yaml
-    strategy:
-      matrix:
-        level: [2]
-    with:
-      opponent: Stockfish
-      opponent_long: Stockfish (${{ matrix.level }})
-      threads: 1
-      jobs: 40
-      fens: 100
-      run: |
-        cd Chess-Challenge
-        wget -nv https://github.com/official-stockfish/Stockfish/releases/download/sf_16/stockfish-ubuntu-x86-64-avx2.tar
-        tar -xf stockfish-ubuntu-x86-64-avx2.tar
-        echo "STOCKFISH_BIN=stockfish/stockfish-ubuntu-x86-64-avx2" >> $GITHUB_ENV
-        echo "STOCKFISH_LEVEL=${{ matrix.level }}" >> $GITHUB_ENV
+  prepare:
+    runs-on: ubuntu-latest
 
-  comparebot:
-    if: false
-    uses: ./.github/workflows/benchmark-publish.yaml
+    outputs:
+      opponent: ${{ steps.prepare_dispatch.outputs.opponent || env.DEFAULT_OPPONENT }}
+      fens: ${{ steps.prepare_dispatch.outputs.fens || env.DEFAULT_FENS }}
+      jobs: ${{ steps.prepare_dispatch.outputs.jobs || env.DEFAULT_JOBS }}
+      env: ${{ steps.prepare_dispatch.outputs.env || env.DEFAULT_ENV }}
+      opponent_long: ${{ steps.prepare_dispatch.outputs.opponent_long || env.DEFAULT_OPPONENT }}
+
+    steps:
+
+      prepare_dispatch:
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "opponent=${{ github.event.inputs.opponent }}" >> $GITHUB_OUTPUT
+          echo "fens=${{ github.event.inputs.fens }}" >> $GITHUB_OUTPUT
+          echo "jobs=${{ github.event.inputs.jobs }}" >> $GITHUB_OUTPUT
+          echo "env=${{ github.event.inputs.env }}" >> $GITHUB_OUTPUT
+          opponent_long="${{ github.event.inputs.opponent }}"
+          if [ "${{ github.event.inputs.opponent }}" == "Stockfish" ]; then
+            level=$(echo "${{ github.event.inputs.env || env.DEFAULT_ENV }}" | grep -oP 'STOCKFISH_LEVEL=\K\d+' || echo 0)
+            opponent_long="EvilBot ($level)"
+          fi
+          echo "opponent_long=$opponent_long" >> $GITHUB_OUTPUT
+
+  benchmark:
+    needs: prepare
+    uses: ./.github/workflows/benchmark.yaml
     with:
-      opponent: CompareBot
-      threads: 1
-      jobs: 20
+      opponent: ${{ needs.prepare.outputs.opponent || env.DEFAULT_OPPONENT }}
+      opponent_long: ${{ needs.prepare.outputs.opponent_long || env.DEFAULT_OPPONENT }}
+      jobs: ${{ needs.prepare.outputs.jobs || env.DEFAULT_JOBS }}
+      fens: ${{ needs.prepare.outputs.fens || env.DEFAULT_FENS }}
+      run: echo "${{ needs.prepare.outputs.env }}" >> $GITHUB_ENV
+
+  publish:
+    needs: benchmark
+    uses: ./.github/workflows/publish.yaml
+    with:
+      opponent: ${{ needs.prepare.outputs.opponent_long || needs.prepare.outputs.opponent || env.DEFAULT_OPPONENT }}
+      wins: ${{ needs.benchmark.outputs.wins }}
+      draws: ${{ needs.benchmark.outputs.draws }}
+      losses: ${{ needs.benchmark.outputs.losses }}
+
+  # stockfish:
+  #   uses: ./.github/workflows/benchmark-publish.yaml
+  #   strategy:
+  #     matrix:
+  #       level: [2]
+  #   with:
+  #     opponent: Stockfish
+  #     opponent_long: Stockfish (${{ matrix.level }})
+  #     threads: 1
+  #     jobs: 40
+  #     fens: 100
+  #     run: |
+  #       cd Chess-Challenge
+  #       wget -nv https://github.com/official-stockfish/Stockfish/releases/download/sf_16/stockfish-ubuntu-x86-64-avx2.tar
+  #       tar -xf stockfish-ubuntu-x86-64-avx2.tar
+  #       echo "STOCKFISH_BIN=stockfish/stockfish-ubuntu-x86-64-avx2" >> $GITHUB_ENV
+  #       echo "STOCKFISH_LEVEL=${{ matrix.level }}" >> $GITHUB_ENV
+  #
+  # comparebot:
+  #   if: false
+  #   uses: ./.github/workflows/benchmark-publish.yaml
+  #   with:
+  #     opponent: CompareBot
+  #     threads: 1
+  #     jobs: 20
