@@ -76,17 +76,17 @@ jobs:
     needs: prepare
     uses: ./.github/workflows/benchmark.yaml
     with:
-      opponent: ${{ needs.prepare.outputs.opponent || env.DEFAULT_OPPONENT }}
-      opponent_long: ${{ needs.prepare.outputs.opponent_long || env.DEFAULT_OPPONENT }}
-      jobs: ${{ needs.prepare.outputs.jobs || env.DEFAULT_JOBS }}
-      fens: ${{ needs.prepare.outputs.fens || env.DEFAULT_FENS }}
+      opponent: ${{ needs.prepare.outputs.opponent }}
+      opponent_long: ${{ needs.prepare.outputs.opponent_long }}
+      jobs: ${{ needs.prepare.outputs.jobs }}
+      fens: ${{ needs.prepare.outputs.fens }}
       run: echo "${{ needs.prepare.outputs.env }}" >> $GITHUB_ENV
 
   publish:
     needs: benchmark
     uses: ./.github/workflows/publish.yaml
     with:
-      opponent: ${{ needs.prepare.outputs.opponent_long || needs.prepare.outputs.opponent || env.DEFAULT_OPPONENT }}
+      opponent: ${{ needs.prepare.outputs.opponent_long }}
       wins: ${{ needs.benchmark.outputs.wins }}
       draws: ${{ needs.benchmark.outputs.draws }}
       losses: ${{ needs.benchmark.outputs.losses }}
