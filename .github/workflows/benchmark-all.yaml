@@ -58,7 +58,7 @@ jobs:
     steps:
 
       - name: Prepare (Dispatch)
-        id: prepare_dispatch
+        id: 'prepare_dispatch'
         if: github.event_name == 'workflow_dispatch'
         run: |
           echo "opponent=${{ github.event.inputs.opponent }}" >> $GITHUB_OUTPUT
