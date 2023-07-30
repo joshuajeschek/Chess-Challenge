@@ -102,11 +102,17 @@ jobs:
 
           REMOTE_OPPONENT=$(wget -q $OPPONENT && echo true || echo false)
 
+          echo "opponent=$OPPONENT"
           echo "opponent=$OPPONENT" >> GITHUB_OUTPUT
+          echo "opponent_long=$OPPONENT_LONG"
           echo "opponent_long=$OPPONENT_LONG" >> GITHUB_OUTPUT
+          echo "fens=$FENS"
           echo "fens=$FENS" >> GITHUB_OUTPUT
+          echo "jobs=$JOBS"
           echo "jobs=$JOBS" >> GITHUB_OUTPUT
+          echo "env=$ENV"
           echo "env=$ENV" >> GITHUB_OUTPUT
+          echo "remote_opponent=$REMOTE_OPPONENT"
           echo "remote_opponent=$REMOTE_OPPONENT" >> GITHUB_OUTPUT
 
       - name: Notice
