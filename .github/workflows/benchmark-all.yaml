@@ -108,6 +108,7 @@ jobs:
           echo "jobs=$JOBS" >> GITHUB_OUTPUT
           echo "env=$ENV" >> GITHUB_OUTPUT
           echo "remote_opponent=$REMOTE_OPPONENT" >> GITHUB_OUTPUT
+          echo "::notice title=Benchmark against $OPPONENT_LONG::opponent=$OPPONENT, fens=$FENS, jobs=$JOBS, env=$ENV, remote_opponent=$REMOTE_OPPONENT"
 
 
 
