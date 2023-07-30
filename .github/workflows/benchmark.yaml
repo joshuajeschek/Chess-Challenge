@@ -52,7 +52,7 @@ jobs:
           JOBS=$((LINES / OFFSET + (LINES % OFFSET != 0)))
           CHUNKS="[$(seq 0 $((JOBS - 1)) | tr '\n' ',' | sed 's/,$//')]"
           SUFFIX=$(openssl rand -hex 4)
-          KEY="${{inputs.opponent}}_$SUFFIX"
+          KEY="${{inputs.remote_opponent && 'RemoteOpponent' || inputs.opponent }}_$SUFFIX"
           echo "::notice title=Benchmark against ${{inputs.opponent_long || inputs.opponent }} ($SUFFIX)::$LINES FENs, $JOBS jobs with $OFFSET FENs per job"
           echo "chunks=$CHUNKS" >> $GITHUB_OUTPUT
           echo "offset=$OFFSET" >> $GITHUB_OUTPUT
