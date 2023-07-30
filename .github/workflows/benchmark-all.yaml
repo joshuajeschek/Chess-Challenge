@@ -96,10 +96,10 @@ jobs:
       - name: Output
         id: out
         env:
-          OPPONENT: ${{ steps.prepare_dispatch.outputs.opponent || steps.prepare_push.outputs.opponent || env.DEFAULT_OPPONENT }}
-          FENS: ${{ steps.prepare_dispatch.outputs.fens || steps.prepare_push.outputs.fens || env.DEFAULT_FENS }}
-          JOBS: ${{ steps.prepare_dispatch.outputs.jobs || steps.prepare_push.outputs.jobs || env.DEFAULT_JOBS }}
-          ENV: ${{ steps.prepare_dispatch.outputs.env || steps.prepare_push.outputs.env || '' }}
+          OPPONENT: ${{ steps.prepare_dispatch.outputs.opponent || steps.prepare_push.outputs.opponent || steps.prepare_comment.outputs.opponent || env.DEFAULT_OPPONENT }}
+          FENS: ${{ steps.prepare_dispatch.outputs.fens || steps.prepare_push.outputs.fens || steps.prepare_comment.outputs.fens || env.DEFAULT_FENS }}
+          JOBS: ${{ steps.prepare_dispatch.outputs.jobs || steps.prepare_push.outputs.jobs || steps.prepare_comment.outputs.jobs || env.DEFAULT_JOBS }}
+          ENV: ${{ steps.prepare_dispatch.outputs.env || steps.prepare_push.outputs.env || steps.prepare_comment.outputs.env || '' }}
         run: |
           OPPONENT_LONG=$OPPONENT
           if [[ $OPPONENT = Stockfish_* ]]; then
