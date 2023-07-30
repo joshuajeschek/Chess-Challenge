@@ -72,7 +72,7 @@ jobs:
             opponent_long="EvilBot ($level)"
           fi
           echo "opponent_long=$opponent_long" >> $GITHUB_OUTPUT
-          echo "remote_opponent=$(wget -n ${{ github.event.inputs.opponent }} -O /dev/null 2>&1 && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "remote_opponent=$(wget -q ${{ github.event.inputs.opponent }} && echo true || echo false)" >> $GITHUB_OUTPUT
 
 
   benchmark:
