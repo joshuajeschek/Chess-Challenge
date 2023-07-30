@@ -34,7 +34,6 @@ on:
       env:
         description: 'Environment variables to set'
         required: false
-        default: STOCKFISH_LEVEL=0
 
 permissions:
   pull-requests: write
@@ -49,34 +48,75 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      opponent: ${{ steps.prepare_dispatch.outputs.opponent || env.DEFAULT_OPPONENT }}
-      fens: ${{ steps.prepare_dispatch.outputs.fens || env.DEFAULT_FENS }}
-      jobs: ${{ steps.prepare_dispatch.outputs.jobs || env.DEFAULT_JOBS }}
-      env: ${{ steps.prepare_dispatch.outputs.env || env.DEFAULT_ENV }}
-      opponent_long: ${{ steps.prepare_dispatch.outputs.opponent_long || env.DEFAULT_OPPONENT }}
-      remote_opponent: ${{ steps.prepare_dispatch.outputs.remote_opponent || false }}
+      opponent: ${{ steps.output.outputs.opponent || env.DEFAULT_OPPONENT }}
+      fens: ${{ steps.output.outputs.fens || env.DEFAULT_FENS }}
+      jobs: ${{ steps.output.outputs.jobs || env.DEFAULT_JOBS }}
+      env: ${{ steps.output.outputs.env || env.DEFAULT_ENV }}
+      opponent_long: ${{ steps.output.outputs.opponent_long || env.DEFAULT_OPPONENT }}
+      remote_opponent: ${{ steps.output.outputs.remote_opponent || false }}
+      benchmark: ${{ steps.output.outputs.benchmark || false }}
 
     steps:
 
       - name: Prepare (Dispatch)
-        id: 'prepare_dispatch'
         if: github.event_name == 'workflow_dispatch'
         run: |
-          echo "opponent=${{ github.event.inputs.opponent }}" >> $GITHUB_OUTPUT
-          echo "fens=${{ github.event.inputs.fens }}" >> $GITHUB_OUTPUT
-          echo "jobs=${{ github.event.inputs.jobs }}" >> $GITHUB_OUTPUT
-          echo "env=${{ github.event.inputs.env }}" >> $GITHUB_OUTPUT
-          opponent_long="${{ github.event.inputs.opponent }}"
-          if [ "${{ github.event.inputs.opponent }}" == "Stockfish" ]; then
-            level=$(echo "${{ github.event.inputs.env || env.DEFAULT_ENV }}" | grep -oP 'STOCKFISH_LEVEL=\K\d+' || echo 0)
-            opponent_long="EvilBot ($level)"
+          export OPPONENT=${{ github.event.inputs.opponent }}
+          export FENS=${{ github.event.inputs.fens }}
+          export JOBS=${{ github.event.inputs.jobs }}
+          export ENV=${{ github.event.inputs.env }}
+
+      - name: Checkout code
+        if: github.event_name == 'pull_request' || github.event_name == 'push'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Prepare (Push & PR)
+        if: github.event_name == 'pull_request' || github.event_name == 'push'
+        run: |
+          # get last commit message
+          commit_message=$(git log -1 --pretty=%B)
+          export OPPONENT=$(echo commit_message | grep -oP 'opponent::\K\w+')
+          export FENS=$(echo commit_message | grep -oP 'fens::\K\d+')
+          export JOBS=$(echo commit_message | grep -oP 'jobs::\K\d+')
+          export ENV=$(echo commit_message | grep -oP 'env::\K\S+')
+
+      - name: Output
+        id: output
+        run: |
+          echo "benchmark=true" >> GITHUB_OUTPUT
+          echo "opponent=$OPPONENT"
+          echo "opponent=$OPPONENT" >> GITHUB_OUTPUT
+          echo "fens=$FENS"
+          echo "fens=$FENS" >> GITHUB_OUTPUT
+          echo "jobs=$JOBS"
+          echo "jobs=$JOBS" >> GITHUB_OUTPUT
+
+          OPPONENT_LONG=$OPPONENT
+          if [[ $OPPONENT = Stockfish_* ]]; then
+            LEVEL=$(echo $opponent | grep -oP 'Stockfish_\K\d+' || echo 0)
+            ENV="$ENV:STOCKFISH_LEVEL=$LEVEL"
+            OPPONENT_LONG="Stockfish ($LEVEL)"
+          else if [[ $opponent = Stockfish ]]; then
+            ENV="$ENV:STOCKFISH_LEVEL=0"
+            OPPONENT_LONG="Stockfish (0)"
           fi
-          echo "opponent_long=$opponent_long" >> $GITHUB_OUTPUT
-          echo "remote_opponent=$(wget -q ${{ github.event.inputs.opponent }} && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "opponent_long=$OPPONENT_LONG"
+          echo "opponent_long=$OPPONENT_LONG" >> GITHUB_OUTPUT
+          echo "env=$ENV"
+          echo "env=$ENV" >> GITHUB_OUTPUT
+
+          REMOTE_OPPONENT=$(wget -q $OPPONENT && echo true || echo false)
+          echo "remote_opponent=$REMOTE_OPPONENT"
+          echo "remote_opponent=$REMOTE_OPPONENT" >> GITHUB_OUTPUT
+
+
 
 
   benchmark:
     needs: prepare
+    if: fromJSON(needs.prepare.outputs.benchmark)
     uses: ./.github/workflows/benchmark.yaml
     with:
       opponent: ${{ needs.prepare.outputs.opponent }}
