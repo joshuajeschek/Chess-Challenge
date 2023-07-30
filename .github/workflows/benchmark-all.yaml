@@ -76,7 +76,7 @@ jobs:
         if: github.event_name == 'pull_request' || github.event_name == 'push'
         id: prepare_push
         run: |
-          commit_message=$(git log -1 --pretty=%B)
+          commit_message=$(git log @~ --pretty=%B)
           echo $commit_message
           echo "opponent=$(echo $commit_message | grep -oP 'opponent::\K\w+')" >> $GITHUB_OUTPUT
           echo "fens=$(echo $commit_message | grep -oP 'fens::\K\d+')" >> $GITHUB_OUTPUT
