@@ -78,8 +78,8 @@ jobs:
     with:
       opponent: ${{ needs.prepare.outputs.opponent }}
       opponent_long: ${{ needs.prepare.outputs.opponent_long }}
-      jobs: ${{ needs.prepare.outputs.jobs }}
-      fens: ${{ needs.prepare.outputs.fens }}
+      jobs: ${{ fromJSON(needs.prepare.outputs.jobs) }}
+      fens: ${{ fromJSON(needs.prepare.outputs.fens) }}
       run: echo "${{ needs.prepare.outputs.env }}" >> $GITHUB_ENV
 
   publish:
@@ -87,9 +87,9 @@ jobs:
     uses: ./.github/workflows/publish.yaml
     with:
       opponent: ${{ needs.prepare.outputs.opponent_long }}
-      wins: ${{ needs.benchmark.outputs.wins }}
-      draws: ${{ needs.benchmark.outputs.draws }}
-      losses: ${{ needs.benchmark.outputs.losses }}
+      wins: ${{ fromJSON(needs.benchmark.outputs.wins) }}
+      draws: ${{ fromJSON(needs.benchmark.outputs.draws) }}
+      losses: ${{ fromJSON(needs.benchmark.outputs.losses) }}
 
   # stockfish:
   #   uses: ./.github/workflows/benchmark-publish.yaml
