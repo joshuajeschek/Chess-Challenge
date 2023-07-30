@@ -99,9 +99,11 @@ jobs:
         run: |
           OPPONENT=${{ steps.prepare_dispatch.outputs.opponent || steps.prepare_push.outputs.opponent || env.DEFAULT_OPPONENT }}
           echo "opponent=$OPPONENT" >> GITHUB_OUTPUT
+          echo "fens=${{ steps.prepare_dispatch.outputs.fens || steps.prepare_push.outputs.fens || env.DEFAULT_FENS }}"
           echo "fens=${{ steps.prepare_dispatch.outputs.fens || steps.prepare_push.outputs.fens || env.DEFAULT_FENS }}" >> GITHUB_OUTPUT
+          echo "jobs=${{ steps.prepare_dispatch.outputs.jobs || steps.prepare_push.outputs.jobs || env.DEFAULT_JOBS }}"
           echo "jobs=${{ steps.prepare_dispatch.outputs.jobs || steps.prepare_push.outputs.jobs || env.DEFAULT_JOBS }}" >> GITHUB_OUTPUT
-          ENV=${{ steps.prepare_dispatch.outputs.env || steps.prepare_push.outputs.env || '' }}
+          ENV=${{ steps.prepare_dispatch.outputs.env || steps.prepare_push.outputs.env || '""' }}
 
           OPPONENT_LONG=$OPPONENT
           if [[ $OPPONENT = Stockfish_* ]]; then
@@ -132,7 +134,7 @@ jobs:
       opponent_long: ${{ needs.prepare.outputs.opponent_long }}
       jobs: ${{ fromJSON(needs.prepare.outputs.jobs) }}
       fens: ${{ fromJSON(needs.prepare.outputs.fens) }}
-      run: echo "${{ needs.prepare.outputs.env }}" >> $GITHUB_ENV
+      run: 'echo "${{ needs.prepare.outputs.env }}" >> $GITHUB_ENV'
       remote_opponent: ${{ fromJSON(needs.prepare.outputs.remote_opponent) }}
 
   publish:
