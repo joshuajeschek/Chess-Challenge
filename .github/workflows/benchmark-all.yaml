@@ -53,7 +53,7 @@ jobs:
       env: ${{ steps.output.outputs.env }}
       opponent_long: ${{ steps.output.outputs.opponent_long }}
       remote_opponent: ${{ steps.output.outputs.remote_opponent }}
-      benchmark: ${{ steps.output.outputs.benchmark || false }}
+      benchmark: ${{ fromJSON(steps.output.outputs.benchmark) || false }}
 
     steps:
 
