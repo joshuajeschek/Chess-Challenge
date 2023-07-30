@@ -78,7 +78,6 @@ jobs:
         run: |
           LAST_COMMIT_SHA=${{ github.event.pull_request.head.sha || github.event.head_commit.sha }}
           COMMIT_MESSAGE=$(git log $LAST_COMMIT_SHA -1 --pretty=%B)
-          echo $COMMIT_MESSAGE
           echo "opponent=$(echo $COMMIT_MESSAGE | grep -oP 'opponent::\K\w+')" >> $GITHUB_OUTPUT
           echo "fens=$(echo $COMMIT_MESSAGE | grep -oP 'fens::\K\d+')" >> $GITHUB_OUTPUT
           echo "jobs=$(echo $COMMIT_MESSAGE | grep -oP 'jobs::\K\d+')" >> $GITHUB_OUTPUT
@@ -88,11 +87,11 @@ jobs:
         if: github.event_name == 'issue_comment'
         id: prepare_comment
         run: |
-          comment='${{ github.event.comment.body }}'
-          echo "opponent=$(echo $comment | grep -oP 'opponent::\K\w+')" >> $GITHUB_OUTPUT
-          echo "fens=$(echo $comment | grep -oP 'fens::\K\d+')" >> $GITHUB_OUTPUT
-          echo "jobs=$(echo $comment | grep -oP 'jobs::\K\d+')" >> $GITHUB_OUTPUT
-          echo "env=$(echo $comment | grep -oP 'env::\K\S+')" >> $GITHUB_OUTPUT
+          COMMENT='${{ github.event.comment.body }}'
+          echo "opponent=$(echo $COMMENT | grep -oP 'opponent::\K\w+')" >> $GITHUB_OUTPUT
+          echo "fens=$(echo $COMMENT | grep -oP 'fens::\K\d+')" >> $GITHUB_OUTPUT
+          echo "jobs=$(echo $COMMENT | grep -oP 'jobs::\K\d+')" >> $GITHUB_OUTPUT
+          echo "env=$(echo $COMMENT | grep -oP 'env::\K\S+')" >> $GITHUB_OUTPUT
 
       - name: Output
         id: out
