@@ -14,8 +14,6 @@ public class MyBot : IChessBot
     private Move bestMove = Move.NullMove;
     private double alpha = -Int32.MaxValue;
     private double beta = Int32.MaxValue;
-    private int whiteCastlingScore = 0;
-    private int blackCastlingScore = 0;
     private float progress = 0;
     private int lastThinkTime = 0;
     private float timeForMove = 6_000;
@@ -47,7 +45,7 @@ public class MyBot : IChessBot
         if (movesDone > 60)
             timeForMove = timer.MillisecondsRemaining / 40f;
 
-        Search(board, DEPTH, alpha, beta);
+        Search(board, DEPTH, alpha, beta, 0);
 
         lastThinkTime = timer.MillisecondsElapsedThisTurn;
         double diff = lastThinkTime - 1200 * Math.Exp(-Math.Pow((movesDone - 25) / 55, 2));
@@ -57,6 +55,7 @@ public class MyBot : IChessBot
             DEPTH = Math.Min(DEPTH + 1, BitboardHelper.GetNumberOfSetBits(board.AllPiecesBitboard) < 15 ? 6 : 5);
         return bestMove;
     }
+
     /// <summary>
     /// Search is a recursive function that searches for the best move at a given depth.
     /// </summary>
@@ -65,7 +64,7 @@ public class MyBot : IChessBot
     /// <remarks>the depth is decreased by 1 for each recursive call</remarks>
     /// <param name="maxDepth">maximal depth to be searched + the depth at which the boards are ultimately evaluated</param>
     /// <returns>score of the board at depth=0 with the best score obtained</returns>
-    double Search(Board board, int depth, double alpha, double beta)
+    double Search(Board board, int depth, double alpha, double beta, int castled)
     {
         if (board.IsInCheckmate())
             return WORST_SCORE;
@@ -75,9 +74,10 @@ public class MyBot : IChessBot
             return 0;
         // we have reached the depth - evaluate the board for the current color
         if (depth == 0)
-            return Evaluate(board);
+            return Evaluate(board, castled);
 
         double bestScore = WORST_SCORE;
+
         Move[] moves = board.GetLegalMoves();
         Array.Sort(moves.Select(move => //
               Convert.ToInt32(move.IsCastles) * -50 //
@@ -95,21 +95,13 @@ public class MyBot : IChessBot
                 break;
             }
 
-            if (move.IsCastles && board.IsWhiteToMove)
-                whiteCastlingScore += 1;
-            else if (move.IsCastles && !board.IsWhiteToMove)
-                blackCastlingScore += 1;
-
             board.MakeMove(move);
             // negate the score because after making a move,
             // we are looking at the board from the other player's perspective
-            double score = -Search(board, depth - 1, -beta, -alpha);
+            castled += move.IsCastles ? 1 : 0;
+            double score = -Search(board, depth - 1, -beta, -alpha, -castled);
+            castled -= move.IsCastles ? 1 : 0;
             board.UndoMove(move);
-
-            if (move.IsCastles && board.IsWhiteToMove)
-                whiteCastlingScore -= 1;
-            else if (move.IsCastles && !board.IsWhiteToMove)
-                blackCastlingScore -= 1;
 
             if (score > bestScore)
             {
@@ -131,9 +123,12 @@ public class MyBot : IChessBot
     /// </summary>
     /// <param name="board">board to be evaluated</param>
     /// <returns>score of the board</returns>
-    private double Evaluate(Board board)
+    private double Evaluate(Board board, int castlingScore)
     {
-        int mobilityScore = CalculateMobilityScore(board);
+        board.ForceSkipTurn();
+        int theirMobility = board.GetLegalMoves().Length;
+        board.UndoSkipTurn();
+        int mobilityScore = -theirMobility + board.GetLegalMoves().Length;
         int materialScore = 0;
         float positionScore = 0;
 
@@ -149,18 +144,9 @@ public class MyBot : IChessBot
 
         return 50 * materialScore //
            + 25 * mobilityScore //
-           + (whiteCastlingScore - blackCastlingScore) * (board.IsWhiteToMove ? 500 : -500) //
+           + 1000 * castlingScore //
            + Math.Min(progress * 2, 1) * 25 * positionScore
            + 50 * (board.IsInCheck() ? progress : 0);
-    }
-
-    private int CalculateMobilityScore(Board board)
-    {
-        // beware of effect on isInCheck
-        board.ForceSkipTurn();
-        int theirMobility = board.GetLegalMoves().Length;
-        board.UndoSkipTurn();
-        return -theirMobility + board.GetLegalMoves().Length;
     }
 
     private float Lerp(float a, float b, float t) => a + (b - a) * t;
