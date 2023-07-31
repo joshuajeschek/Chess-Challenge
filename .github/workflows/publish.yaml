@@ -42,7 +42,10 @@ jobs:
       - name: Calculate and export context
         id: prepare
         run: |
-          LAST_COMMIT_SHA=${{ github.event.pull_request.head.sha || github.event.issue.head.sha }}
+          git log
+          git rev-parse @
+          git rev-parse @~
+          LAST_COMMIT_SHA=${{ github.event.pull_request.head.sha }}
           SHORT_SHA=$(echo $LAST_COMMIT_SHA | cut -c 1-7)
           echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
 
