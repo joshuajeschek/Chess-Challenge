@@ -124,7 +124,7 @@ jobs:
           comment-id: ${{ github.event.comment.id }}
           reactions: hooray
       - name: Update PR
-        uses: aidan-mundy/react-to-issue@v1
+        uses: aidan-mundy/react-to-issue@v1.1.1
         if: github.event_name == 'pull_request'
         with:
           issue-number: ${{ github.event.pull_request.number }}
