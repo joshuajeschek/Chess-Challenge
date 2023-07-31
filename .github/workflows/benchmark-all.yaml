@@ -140,7 +140,22 @@ jobs:
         run: echo "::notice::opponent=$OPPONENT, opponent_long=$OPPONENT_LONG, fens=$FENS, jobs=$JOBS, run=$RUN, remote_opponent=$REMOTE_OPPONENT"
 
 
-
+  react:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issue_comment' || github.event_name == 'pull_request'
+    steps:
+      - name: Update comment
+        uses: peter-evans/create-or-update-comment@v3
+        if: github.event_name == 'issue_comment'
+        with:
+          issue-number: ${{ github.event.comment.id }}
+          reaction: eyes
+      - name: Update PR
+        uses: peter-evans/create-or-update-comment@v3
+        if: github.event_name == 'pull_request'
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          reaction: eyes
 
 
   benchmark:

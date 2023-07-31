@@ -57,7 +57,6 @@ jobs:
             const losses = '${{ inputs.losses }}';
             const shortSha = '${{ steps.prepare.outputs.short_sha }}';
             const pull_number = ${{ github.event.pull_request.number || github.event.issue.number || 'null' }};
-            const comment_number = ${{ github.event.comment.id || 'null' }};
 
             getNewContent = (existingContent) => {
               let newContent = existingContent;
@@ -104,12 +103,30 @@ jobs:
                 body: newContent
               });
             }
-            if (comment_number) {
-              const comment = await getComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: comment_number
-              });
-              comment.body = getNewContent(comment.body);
-              updateComment(comment);
-            }
+
+      - name: Edit Comment
+        if: github.event_name == 'issue_comment'
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          comment-id: ${{ github.event.comment.id }}
+          body: |
+            | Opponent | Wins | Draws | Losses | Commit |
+            | --- | --- | --- | --- | --- |
+            | ${{ inputs.opponent }} | ${{ inputs.wins }} | ${{ inputs.draws }} | ${{ inputs.losses }} | ${{ steps.prepare.outputs.short_sha }} |
+
+  react:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issue_comment' || github.event_name == 'pull_request'
+    steps:
+      - name: Update comment
+        uses: peter-evans/create-or-update-comment@v3
+        if: github.event_name == 'issue_comment'
+        with:
+          issue-number: ${{ github.event.comment.id }}
+          reaction: hoory
+      - name: Update PR
+        uses: peter-evans/create-or-update-comment@v3
+        if: github.event_name == 'pull_request'
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          reaction: hoory
