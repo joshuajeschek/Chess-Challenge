@@ -1,7 +1,6 @@
 ﻿using ChessChallenge.API;
 using System;
 using System.Linq;
-using System.Diagnostics;
 using static ChessChallenge.Application.ConsoleHelper;
 
 public class MyBot : IChessBot
@@ -144,7 +143,7 @@ public class MyBot : IChessBot
 
         return 50 * materialScore //
            + 25 * mobilityScore //
-           + 1000 * castlingScore //
+           + 100 * castlingScore //
            + Math.Min(progress * 2, 1) * 25 * positionScore
            + 50 * (board.IsInCheck() ? progress : 0);
     }
