@@ -21,7 +21,6 @@ public class MyBot : IChessBot
 
     public MyBot()
     {
-
         PIECE_SQUARE_TABLE = PIECE_SQUARE_TABLE_RAW.Aggregate(new int[0], (decoded, rank) =>
              {
                  return decoded.Concat(
@@ -140,7 +139,7 @@ public class MyBot : IChessBot
 
         return 50 * materialScore
            + 25 * mobilityScore
-           + 100 * castlingScore
+           + 500 * castlingScore
            + 25 * Math.Min(progress * 2, 1) * positionScore
            + 50 * (board.IsInCheck() ? progress : 0);
     }
