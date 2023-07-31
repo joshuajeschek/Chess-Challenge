@@ -50,6 +50,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
+            const { getComment, updateComment } = require('@actions/github');
             const opponent = '${{ inputs.opponent }}';
             const wins = '${{ inputs.wins }}';
             const draws = '${{ inputs.draws }}';
@@ -105,13 +106,13 @@ jobs:
               });
             }
             if (comment_number) {
-              const origin = await github.rest.issues.getComment({
+              const origin = await getComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: comment_number
               });
               const newContent = getNewContent(origin);
-              github.rest.issues.updateComment({
+              updateComment({
                 comment_id: comment_number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
