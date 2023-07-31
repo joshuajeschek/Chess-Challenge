@@ -148,10 +148,10 @@ jobs:
         uses: peter-evans/create-or-update-comment@v3
         if: github.event_name == 'issue_comment'
         with:
-          issue-number: ${{ github.event.comment.id }}
+          comment-id: ${{ github.event.comment.id }}
           reactions: eyes
       - name: Update PR
-        uses: peter-evans/create-or-update-comment@v3
+        uses: aidan-mundy/react-to-issue@v1
         if: github.event_name == 'pull_request'
         with:
           issue-number: ${{ github.event.pull_request.number }}
