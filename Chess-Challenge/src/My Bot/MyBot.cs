@@ -11,11 +11,9 @@ public class MyBot : IChessBot
     /// <summary>the depth to which the bot searches</summary>
     private int DEPTH = 5;
     private Move bestMove = Move.NullMove;
-    private double alpha = -Int32.MaxValue;
-    private double beta = Int32.MaxValue;
     private float progress = 0;
     private int lastThinkTime = 0;
-    private float timeForMove = 6_000;
+    private float timeForMove = 5_000;
     private Timer? timer;
     private bool aborted = false;
 
@@ -44,7 +42,7 @@ public class MyBot : IChessBot
         if (movesDone > 60)
             timeForMove = timer.MillisecondsRemaining / 40f;
 
-        Search(board, DEPTH, alpha, beta, 0);
+        Search(board, DEPTH, WORST_SCORE, -WORST_SCORE, 0);
 
         lastThinkTime = timer.MillisecondsElapsedThisTurn;
         double diff = lastThinkTime - 1200 * Math.Exp(-Math.Pow((movesDone - 25) / 55, 2));
@@ -78,9 +76,9 @@ public class MyBot : IChessBot
         double bestScore = WORST_SCORE;
 
         Move[] moves = board.GetLegalMoves();
-        Array.Sort(moves.Select(move => //
-              Convert.ToInt32(move.IsCastles) * -50 //
-              - PIECE_VALUES[(int)move.CapturePieceType] //
+        Array.Sort(moves.Select(move =>
+              Convert.ToInt32(move.IsCastles) * -50
+              - PIECE_VALUES[(int)move.CapturePieceType]
               - PIECE_VALUES[(int)move.PromotionPieceType]).ToArray(), moves);
 
         if (depth == DEPTH)
@@ -94,12 +92,10 @@ public class MyBot : IChessBot
                 break;
             }
 
-            board.MakeMove(move);
             // negate the score because after making a move,
             // we are looking at the board from the other player's perspective
-            castled += move.IsCastles ? 1 : 0;
-            double score = -Search(board, depth - 1, -beta, -alpha, -castled);
-            castled -= move.IsCastles ? 1 : 0;
+            board.MakeMove(move);
+            double score = -Search(board, depth - 1, -beta, -alpha, -(castled + Convert.ToInt32(move.IsCastles)));
             board.UndoMove(move);
 
             if (score > bestScore)
@@ -128,6 +124,7 @@ public class MyBot : IChessBot
         int theirMobility = board.GetLegalMoves().Length;
         board.UndoSkipTurn();
         int mobilityScore = -theirMobility + board.GetLegalMoves().Length;
+
         int materialScore = 0;
         float positionScore = 0;
 
@@ -141,22 +138,21 @@ public class MyBot : IChessBot
             positionScore += GetPieceSquareValue(piece) * factor;
         }
 
-        return 50 * materialScore //
-           + 25 * mobilityScore //
-           + 100 * castlingScore //
-           + Math.Min(progress * 2, 1) * 25 * positionScore
+        return 50 * materialScore
+           + 25 * mobilityScore
+           + 100 * castlingScore
+           + 25 * Math.Min(progress * 2, 1) * positionScore
            + 50 * (board.IsInCheck() ? progress : 0);
     }
 
-    private float Lerp(float a, float b, float t) => a + (b - a) * t;
+    private float ProgressLerp(float a, float b) => a + (b - a) * progress;
 
     private float GetPieceSquareValue(Piece piece)
     {
         int index = piece.Square.Index ^ (piece.IsWhite ? 0 : 56);
-        return Lerp( //
+        return ProgressLerp(
             PIECE_SQUARE_TABLE[((int)piece.PieceType - 1) * 64 + index],
-            PIECE_SQUARE_TABLE[(int)piece.PieceType * 64 + index],
-            progress);
+            PIECE_SQUARE_TABLE[(int)piece.PieceType * 64 + index]);
     }
 
     ulong[] PIECE_SQUARE_TABLE_RAW = {
