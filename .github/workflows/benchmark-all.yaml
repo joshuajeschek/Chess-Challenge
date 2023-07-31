@@ -1,9 +1,9 @@
 name: Benchmark Bot
 
 env:
-  DEFAULT_OPPONENT: EvilBot
-  DEFAULT_JOBS: 22
-  DEFAULT_FENS: 2
+  DEFAULT_OPPONENT: Stockfish_2
+  DEFAULT_JOBS: 25
+  DEFAULT_FENS: 25
 
 on:
   push:
@@ -21,15 +21,15 @@ on:
       opponent:
         description: 'Opponent'
         required: true
-        default: EvilBot
+        default: Stockfish_2
       jobs:
         description: 'Jobs'
         required: true
-        default: 2
+        default: 25
       fens:
         description: 'Fens'
         required: true
-        default: 2
+        default: 25
       env:
         description: 'Environment variables to set'
         required: false
