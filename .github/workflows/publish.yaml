@@ -123,10 +123,10 @@ jobs:
         if: github.event_name == 'issue_comment'
         with:
           issue-number: ${{ github.event.comment.id }}
-          reaction: hoory
+          reactions: hoory
       - name: Update PR
         uses: peter-evans/create-or-update-comment@v3
         if: github.event_name == 'pull_request'
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          reaction: hoory
+          reactions: hoory
