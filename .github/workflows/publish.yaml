@@ -50,13 +50,14 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const { getComment, updateComment } = require('@actions/github');
             const opponent = '${{ inputs.opponent }}';
             const wins = '${{ inputs.wins }}';
             const draws = '${{ inputs.draws }}';
             const losses = '${{ inputs.losses }}';
             const shortSha = '${{ steps.prepare.outputs.short_sha }}';
             const pull_number = ${{ github.event.pull_request.number || github.event.issue.number || 'null' }};
+
+            if (!pull_number) return;
 
             getNewContent = (existingContent) => {
               let newContent = existingContent;
@@ -89,20 +90,18 @@ jobs:
               return newContent;
             }
 
-            if (pull_number) {
-              const pr = await github.rest.pulls.get({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: pull_number
-              });
-              const newContent = getNewContent(pr.data.body || '');
-              github.rest.pulls.update({
-                pull_number: pull_number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: newContent
-              });
-            }
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pull_number
+            });
+            const newContent = getNewContent(pr.data.body || '');
+            github.rest.pulls.update({
+              pull_number: pull_number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: newContent
+            });
 
       - name: Edit Comment
         if: github.event_name == 'issue_comment'
