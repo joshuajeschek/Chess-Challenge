@@ -1,6 +1,8 @@
 ﻿using ChessChallenge.API;
 using System;
 using System.Linq;
+using System.Diagnostics;
+using static ChessChallenge.Application.ConsoleHelper;
 
 public class MyBot : IChessBot
 {
@@ -77,10 +79,15 @@ public class MyBot : IChessBot
 
         double bestScore = WORST_SCORE;
         Move[] moves = board.GetLegalMoves();
-        Move[] orderedMoves = MoveOrderingHeuristics(moves);
+        Array.Sort(moves.Select(move => //
+              Convert.ToInt32(move.IsCastles) * -50 //
+              - PIECE_VALUES[(int)move.CapturePieceType] //
+              - PIECE_VALUES[(int)move.PromotionPieceType]).ToArray(), moves);
+
         if (depth == DEPTH)
             bestMove = moves[0];
-        foreach (Move move in orderedMoves)
+
+        foreach (Move move in moves)
         {
             if (timer.MillisecondsElapsedThisTurn > timeForMove)
             {
@@ -92,15 +99,18 @@ public class MyBot : IChessBot
                 whiteCastlingScore += 1;
             else if (move.IsCastles && !board.IsWhiteToMove)
                 blackCastlingScore += 1;
+
             board.MakeMove(move);
             // negate the score because after making a move,
             // we are looking at the board from the other player's perspective
             double score = -Search(board, depth - 1, -beta, -alpha);
             board.UndoMove(move);
+
             if (move.IsCastles && board.IsWhiteToMove)
                 whiteCastlingScore -= 1;
             else if (move.IsCastles && !board.IsWhiteToMove)
                 blackCastlingScore -= 1;
+
             if (score > bestScore)
             {
                 bestScore = score;
@@ -162,24 +172,6 @@ public class MyBot : IChessBot
             PIECE_SQUARE_TABLE[((int)piece.PieceType - 1) * 64 + index],
             PIECE_SQUARE_TABLE[(int)piece.PieceType * 64 + index],
             progress);
-    }
-
-    private Move[] MoveOrderingHeuristics(Move[] legalMoves)
-    {
-        int[] heuristicScores = new int[legalMoves.Length];
-        for (int i=0;i<legalMoves.Length;i++)
-        {
-            if (legalMoves[i].IsCapture)
-                heuristicScores[i] += 50;
-            if (legalMoves[i].IsCastles)
-                heuristicScores[i] += 50;
-            if (legalMoves[i].IsPromotion)
-                heuristicScores[i] += 100;
-        }
-        Array.Sort(heuristicScores, legalMoves);
-        Array.Reverse(legalMoves);
-        return legalMoves ;
-
     }
 
     ulong[] PIECE_SQUARE_TABLE_RAW = {
