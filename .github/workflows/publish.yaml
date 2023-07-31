@@ -59,8 +59,7 @@ jobs:
             const pull_number = ${{ github.event.pull_request.number || github.event.issue.number || 'null' }};
             const comment_number = ${{ github.event.comment.id || 'null' }};
 
-            getNewContent = (origin) => {
-              const existingContent = origin.data.body || '';
+            getNewContent = (existingContent) => {
               let newContent = existingContent;
               let benchmarkIndexStart = existingContent.indexOf('<!-- benchmark start -->');
               let benchmarkIndexEnd = existingContent.indexOf('<!-- benchmark end -->');
@@ -92,12 +91,12 @@ jobs:
             }
 
             if (pull_number) {
-              const origin = await github.rest.pulls.get({
+              const pr = await github.rest.pulls.get({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: pull_number
               });
-              const newContent = getNewContent(origin);
+              const newContent = getNewContent(pr.data.body || '');
               github.rest.pulls.update({
                 pull_number: pull_number,
                 owner: context.repo.owner,
@@ -106,16 +105,11 @@ jobs:
               });
             }
             if (comment_number) {
-              const origin = await getComment({
+              const comment = await getComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: comment_number
               });
-              const newContent = getNewContent(origin);
-              updateComment({
-                comment_id: comment_number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: newContent
-              });
+              comment.body = getNewContent(comment.body);
+              updateComment(comment);
             }
