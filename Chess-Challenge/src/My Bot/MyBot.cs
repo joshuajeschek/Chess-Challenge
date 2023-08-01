@@ -22,14 +22,8 @@ public class MyBot : IChessBot
     public MyBot()
     {
         PIECE_SQUARE_TABLE = PIECE_SQUARE_TABLE_RAW.Aggregate(new int[0], (decoded, rank) =>
-             {
-                 return decoded.Concat(
-                     Enumerable.Range(0, 8).Select(file =>
-                         {
-                             return (int)(sbyte)((rank & (255UL << 8 * file)) >> 8 * file);
-                         })
-                 ).ToArray();
-             });
+            decoded.Concat(Enumerable.Range(0, 8).Select(file =>
+                (int)(sbyte)((rank & (255UL << 8 * file)) >> 8 * file))).ToArray());
     }
 
     public Move Think(Board board, Timer timer)
@@ -40,6 +34,7 @@ public class MyBot : IChessBot
         progress = Math.Min(movesDone / 65f, 1);
         if (movesDone > 60)
             timeForMove = timer.MillisecondsRemaining / 40f;
+        bestMove = board.GetLegalMoves()[0];
 
         Search(board, DEPTH, WORST_SCORE, -WORST_SCORE, 0);
 
@@ -79,9 +74,6 @@ public class MyBot : IChessBot
               Convert.ToInt32(move.IsCastles) * -50
               - PIECE_VALUES[(int)move.CapturePieceType]
               - PIECE_VALUES[(int)move.PromotionPieceType]).ToArray(), moves);
-
-        if (depth == DEPTH)
-            bestMove = moves[0];
 
         foreach (Move move in moves)
         {
