@@ -1,7 +1,6 @@
 ﻿using ChessChallenge.API;
 using System;
 using System.Linq;
-using static ChessChallenge.Application.ConsoleHelper;
 
 public class MyBot : IChessBot
 {
@@ -142,8 +141,10 @@ public class MyBot : IChessBot
     {
         int index = piece.Square.Index ^ (piece.IsWhite ? 0 : 56);
         return ProgressLerp(
-            PIECE_SQUARE_TABLE[((int)piece.PieceType - 1) * 64 + index],
-            PIECE_SQUARE_TABLE[(int)piece.PieceType * 64 + index]);
+            // (type - 1) * 2 * 64 + index
+            PIECE_SQUARE_TABLE[128 * (int)piece.PieceType - 128 + index],
+            // ((type - 1) * 2 + 1) * 64 + index
+            PIECE_SQUARE_TABLE[128 * (int)piece.PieceType - 64 + index]);
     }
 
     ulong[] PIECE_SQUARE_TABLE_RAW = {
