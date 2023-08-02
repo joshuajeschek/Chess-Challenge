@@ -1,6 +1,8 @@
 ﻿using ChessChallenge.API;
 using System;
+using System.Diagnostics;
 using System.Linq;
+using static ChessChallenge.Application.ConsoleHelper;
 
 public class MyBot : IChessBot
 {
@@ -111,30 +113,29 @@ public class MyBot : IChessBot
     /// <returns>score of the board</returns>
     private double Evaluate(Board board, int castlingScore)
     {
-        board.ForceSkipTurn();
-        int theirMobility = board.GetLegalMoves().Length;
-        board.UndoSkipTurn();
-        int mobilityScore = -theirMobility + board.GetLegalMoves().Length;
 
-        int materialScore = 0;
+        int materialScore = 0, mobilityScore = 0;
         float positionScore = 0;
 
         ulong pieces = board.AllPiecesBitboard;
         while (pieces > 0)
         {
-            Piece piece = board.GetPiece(
-                              new Square(BitboardHelper.ClearAndGetIndexOfLSB(ref pieces)));
+            Piece piece = board.GetPiece(new Square(BitboardHelper.ClearAndGetIndexOfLSB(ref pieces)));
             int factor = piece.IsWhite == board.IsWhiteToMove ? 1 : -1;
             materialScore += PIECE_VALUES[(int)piece.PieceType] * factor;
             positionScore += GetPieceSquareValue(piece) * factor;
+            mobilityScore += BitboardHelper.GetNumberOfSetBits(((piece.IsKnight ? BitboardHelper.GetKnightAttacks(piece.Square) : 0)
+                | BitboardHelper.GetSliderAttacks(piece.PieceType, piece.Square, board))
+                & ~(piece.IsWhite ? board.WhitePiecesBitboard : board.BlackPiecesBitboard)) * factor;
         }
 
         return 50 * materialScore
-           + 25 * mobilityScore
+           + 250 * mobilityScore
            + 500 * castlingScore
            + 25 * Math.Min(progress * 2, 1) * positionScore
            + 50 * (board.IsInCheck() ? progress : 0);
     }
+
 
     private float ProgressLerp(float a, float b) => a + (b - a) * progress;
 

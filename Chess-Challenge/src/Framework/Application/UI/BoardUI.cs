@@ -25,8 +25,8 @@ namespace ChessChallenge.Application
         static readonly Color nameCol = new(67, 204, 101, 255);
 
         // Bitboard debug mode
-        static readonly Color bitboardColZERO = new(61, 121, 217, 200);
-        static readonly Color bitboardColONE = new(252, 43, 92, 200);
+        static readonly Color bitboardColZERO = new(61, 121, 217, 100);
+        static readonly Color bitboardColONE = new(252, 43, 92, 100);
 
         static readonly Color squareTablecolMIN = new(255, 0, 0, 150);
         static readonly Color squareTableColMAX = new(0, 255, 0, 150);
