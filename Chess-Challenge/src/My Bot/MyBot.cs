@@ -1,8 +1,6 @@
 ﻿using ChessChallenge.API;
 using System;
-using System.Diagnostics;
 using System.Linq;
-using static ChessChallenge.Application.ConsoleHelper;
 
 public class MyBot : IChessBot
 {
@@ -11,8 +9,7 @@ public class MyBot : IChessBot
 
     private int depth = 5,
             lastThinkTime = 0,
-            timeForMove = 5_000,
-            WORST_SCORE = -Int32.MaxValue;
+            timeForMove = 5_000;
 
     private float progress = 0;
     private bool aborted = false;
@@ -38,7 +35,7 @@ public class MyBot : IChessBot
             timeForMove = timer.MillisecondsRemaining / 40;
         bestMove = board.GetLegalMoves()[0];
 
-        Search(board, depth, WORST_SCORE, -WORST_SCORE, 0);
+        Search(board, depth, -500_000_000, 500_000_000, 0);
 
         lastThinkTime = timer.MillisecondsElapsedThisTurn;
         double diff = lastThinkTime - 1200 * Math.Exp(-Math.Pow((movesDone - 25) / 55, 2));
@@ -56,20 +53,18 @@ public class MyBot : IChessBot
     /// <param name="currentDepth">current search depth</param>
     /// <remarks>the depth is decreased by 1 for each recursive call</remarks>
     /// <param name="maxDepth">maximal depth to be searched + the depth at which the boards are ultimately evaluated</param>
-    /// <returns>score of the board at depth=0 with the best score obtained</returns>
+    /// <returns>score of the best board at depth=0</returns>
     private double Search(Board board, int currentDepth, double alpha, double beta, int castled)
     {
         if (board.IsInCheckmate())
-            return WORST_SCORE;
-        if (board.IsRepeatedPosition())
+            return -400_000_000 - currentDepth;
+        if (board.IsRepeatedPosition() || board.IsDraw())
             return 0;
-        if (board.IsDraw())
-            return 0;
-        // we have reached the depth - evaluate the board for the current color
+        // we have reached the max depth - evaluate the board for the current color
         if (currentDepth == 0)
             return Evaluate(board, castled);
 
-        double bestScore = WORST_SCORE;
+        double bestScore = -500_000_000;
 
         Move[] moves = board.GetLegalMoves();
         Array.Sort(moves.Select(move =>
